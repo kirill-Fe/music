@@ -930,5 +930,83 @@
     }, 500);
 })();
     </script>
+
+        <script>
+        // ========== БАЗОВАЯ ЗАЩИТА ОТ F12 И ИНСТРУМЕНТОВ РАЗРАБОТЧИКА ==========
+(function() {
+    // 1. Запрет контекстного меню (правая кнопка мыши)
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    // 2. Запрет комбинаций клавиш, открывающих инструменты разработчика
+    document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+I (Windows/Linux)
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.keyCode === 73)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+J (консоль)
+        if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.keyCode === 74)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+U (просмотр исходного кода)
+        if (e.ctrlKey && (e.key === 'U' || e.keyCode === 85)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+S (сохранение страницы)
+        if (e.ctrlKey && (e.key === 'S' || e.keyCode === 83)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+C (инспектор элементов)
+        if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.keyCode === 67)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // 3. Детект открытого инструмента разработчика (через разницу во времени)
+    // Если консоль открыта, периодически очищаем консоль (не всегда работает)
+    let devToolsOpened = false;
+    const checkDevTools = () => {
+        const threshold = 160; // миллисекунд
+        const start = performance.now();
+        debugger; // при открытых инструментах выполнение замедляется
+        const end = performance.now();
+        if (end - start > threshold && !devToolsOpened) {
+            devToolsOpened = true;
+            // Можно предпринять действия: очистить тело страницы, перенаправить и т.п.
+            // document.body.innerHTML = '<h1>Доступ запрещён</h1>';
+            // window.location.href = 'about:blank';
+            console.clear(); // пытаемся очистить консоль
+        } else if (end - start <= threshold && devToolsOpened) {
+            devToolsOpened = false;
+        }
+        requestAnimationFrame(checkDevTools);
+    };
+    // Раскомментируйте следующую строку, если хотите активную проверку (может влиять на производительность)
+    // checkDevTools();
+
+    // 4. Дополнительно: блокировка выделения текста (необязательно)
+    document.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    // Блокировка копирования
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+        return false;
+    });
+})();
+    </script>
 </body>
 </html>

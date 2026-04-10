@@ -825,142 +825,101 @@
             }, 1000);
         });
         
-// ========== Media Session API — управление с заблокированного экрана ==========
-let defaultSeekOffset = 15; // Перемотка на 15 секунд
+// ========== Media Session API — полное управление с заблокированного экрана ==========
+(function initMediaSession() {
+    if (!('mediaSession' in navigator)) return;
 
-(function initMediaSessionSupport() {
-    if (!('mediaSession' in navigator)) {
-        console.log('Media Session API не поддерживается браузером');
-        return;
-    }
+    let seekOffset = 15; // перемотка, если вдруг понадобится
 
-    // Функция обновления метаданных (название трека, исполнитель) на локскрине
-    function updateMediaMetadata() {
-        if (typeof currentPlayingIndex === 'undefined' || currentPlayingIndex === -1 || !allSongItems || !allSongItems[currentPlayingIndex]) {
+    // Функция обновления информации о треке
+    function updateMetadata() {
+        if (typeof currentPlayingIndex === 'undefined' || currentPlayingIndex === -1 || !allSongItems?.[currentPlayingIndex]) {
             navigator.mediaSession.metadata = null;
             return;
         }
-        const songDiv = allSongItems[currentPlayingIndex];
-        const titleElem = songDiv.querySelector('.song-title');
-        const artistElem = songDiv.querySelector('.song-artist');
-        const title = titleElem ? titleElem.innerText : 'Неизвестный трек';
-        const artist = artistElem ? artistElem.innerText : 'Неизвестный исполнитель';
-        
-        // Опционально: добавьте обложку, если есть картинка у исполнителя
-        // const artwork = [{ src: './Музыкант/FACE.png', sizes: '512x512', type: 'image/png' }];
-        const metadata = new MediaMetadata({
-            title: title,
-            artist: artist,
-            album: 'Florik Music',
-            // artwork: artwork
-        });
-        navigator.mediaSession.metadata = metadata;
+        const song = allSongItems[currentPlayingIndex];
+        const title = song.querySelector('.song-title')?.innerText || 'Неизвестно';
+        const artist = song.querySelector('.song-artist')?.innerText || '';
+        navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'Florik Music' });
     }
 
-    // Функция для синхронизации позиции (чтобы ползунок в iOS 16+ работал корректно)
-    function updatePositionState(audioElement) {
-        if ('setPositionState' in navigator.mediaSession && audioElement && audioElement.duration) {
+    // Функция синхронизации позиции (необязательно, но полезно)
+    function updatePosition(audio) {
+        if (audio?.duration && 'setPositionState' in navigator.mediaSession) {
             navigator.mediaSession.setPositionState({
-                duration: audioElement.duration,
-                playbackRate: audioElement.playbackRate,
-                position: audioElement.currentTime
+                duration: audio.duration,
+                position: audio.currentTime,
+                playbackRate: audio.playbackRate
             });
         }
     }
 
-    // Обработчики системных кнопок
-    navigator.mediaSession.setActionHandler('play', () => {
-        if (typeof toggleGlobalPlayPause === 'function') {
-            if (typeof currentPlayingIndex !== 'undefined' && (currentPlayingIndex === -1 || 
-                (allPlayers && allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'))?.audio.paused))) {
-                toggleGlobalPlayPause();
-            } else if (typeof toggleGlobalPlayPause === 'function') {
-                toggleGlobalPlayPause();
-            }
-        }
-    });
-    
-    navigator.mediaSession.setActionHandler('pause', () => {
-        if (typeof toggleGlobalPlayPause === 'function') {
-            const player = allPlayers && allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'));
-            if (player && !player.audio.paused) {
-                toggleGlobalPlayPause();
-            }
-        }
-    });
-    
+    // --- ГЛАВНОЕ: регистрируем ПЕРЕКЛЮЧЕНИЕ ТРЕКОВ (эти кнопки заменят +10/-10 на iPhone) ---
     navigator.mediaSession.setActionHandler('previoustrack', () => {
         if (typeof playPrevTrack === 'function') {
             playPrevTrack();
-            updateMediaMetadata();
+            setTimeout(() => {
+                const audio = allPlayers[currentPlayingIndex]?.audio;
+                if (audio) updatePosition(audio);
+                updateMetadata();
+            }, 50);
         }
     });
-    
+
     navigator.mediaSession.setActionHandler('nexttrack', () => {
         if (typeof playNextTrack === 'function') {
             playNextTrack();
-            updateMediaMetadata();
+            setTimeout(() => {
+                const audio = allPlayers[currentPlayingIndex]?.audio;
+                if (audio) updatePosition(audio);
+                updateMetadata();
+            }, 50);
         }
     });
 
-    // --- Обработчики для перемотки (seekbackward и seekforward) ---
+    // Обработчики play/pause (оставляем)
+    navigator.mediaSession.setActionHandler('play', () => {
+        if (typeof toggleGlobalPlayPause === 'function') toggleGlobalPlayPause();
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+        if (typeof toggleGlobalPlayPause === 'function') toggleGlobalPlayPause();
+    });
+
+    // Обработчики перемотки (оставляем на случай, если где-то нужны, но на iPhone они не покажутся, т.к. есть previoustrack/nexttrack)
     navigator.mediaSession.setActionHandler('seekbackward', (details) => {
-        const currentAudio = allPlayers[currentPlayingIndex]?.audio;
-        if (currentAudio) {
-            const skipTime = details.seekOffset || defaultSeekOffset;
-            currentAudio.currentTime = Math.max(currentAudio.currentTime - skipTime, 0);
-            updatePositionState(currentAudio);
+        const audio = allPlayers[currentPlayingIndex]?.audio;
+        if (audio) {
+            audio.currentTime = Math.max(0, audio.currentTime - (details.seekOffset || seekOffset));
+            updatePosition(audio);
         }
     });
-
     navigator.mediaSession.setActionHandler('seekforward', (details) => {
-        const currentAudio = allPlayers[currentPlayingIndex]?.audio;
-        if (currentAudio) {
-            const skipTime = details.seekOffset || defaultSeekOffset;
-            currentAudio.currentTime = Math.min(currentAudio.currentTime + skipTime, currentAudio.duration);
-            updatePositionState(currentAudio);
+        const audio = allPlayers[currentPlayingIndex]?.audio;
+        if (audio) {
+            audio.currentTime = Math.min(audio.duration, audio.currentTime + (details.seekOffset || seekOffset));
+            updatePosition(audio);
         }
     });
 
-    // Перехватываем событие смены трека, чтобы обновить метаданные на локскрине
-    if (typeof window.updateGlobalTrackInfo === 'function') {
-        const originalUpdate = window.updateGlobalTrackInfo;
+    // Обновляем метаданные при смене трека
+    const origUpdate = window.updateGlobalTrackInfo || (typeof updateGlobalTrackInfo === 'function' ? updateGlobalTrackInfo : null);
+    if (origUpdate) {
         window.updateGlobalTrackInfo = function(index) {
-            originalUpdate(index);
-            updateMediaMetadata();
-            // Обновляем позицию для нового трека
-            const currentAudio = allPlayers[currentPlayingIndex]?.audio;
-            if (currentAudio) {
-                setTimeout(() => updatePositionState(currentAudio), 100);
-            }
-        };
-    } else if (typeof updateGlobalTrackInfo === 'function') {
-        const originalUpdate = updateGlobalTrackInfo;
-        window.updateGlobalTrackInfo = function(index) {
-            originalUpdate(index);
-            updateMediaMetadata();
-            const currentAudio = allPlayers[currentPlayingIndex]?.audio;
-            if (currentAudio) {
-                setTimeout(() => updatePositionState(currentAudio), 100);
-            }
+            origUpdate(index);
+            updateMetadata();
+            const audio = allPlayers[currentPlayingIndex]?.audio;
+            if (audio) setTimeout(() => updatePosition(audio), 100);
         };
     }
-    
-    // Принудительное обновление при запуске
-    setTimeout(updateMediaMetadata, 1000);
-    
-    // Периодическая проверка для обновления метаданных
-    let lastIndex = -1;
+
+    // Периодическая синхронизация (на всякий случай)
     setInterval(() => {
-        if (typeof currentPlayingIndex !== 'undefined' && currentPlayingIndex !== lastIndex) {
-            lastIndex = currentPlayingIndex;
-            updateMediaMetadata();
-            const currentAudio = allPlayers[currentPlayingIndex]?.audio;
-            if (currentAudio) {
-                updatePositionState(currentAudio);
-            }
+        if (currentPlayingIndex !== undefined && currentPlayingIndex !== -1) {
+            updateMetadata();
+            const audio = allPlayers[currentPlayingIndex]?.audio;
+            if (audio && !audio.paused) updatePosition(audio);
         }
-    }, 500);
+    }, 2000);
 })();
     </script>
 </body>

@@ -809,6 +809,112 @@
                 }, 800);
             }, 1000);
         });
+        // ========== Media Session API — управление с заблокированного экрана ==========
+(function initMediaSessionSupport() {
+    if (!('mediaSession' in navigator)) {
+        console.log('Media Session API не поддерживается браузером');
+        return;
+    }
+
+    // Функция обновления метаданных (название трека, исполнитель) на локскрине
+    function updateMediaMetadata() {
+        if (typeof currentPlayingIndex === 'undefined' || currentPlayingIndex === -1 || !allSongItems || !allSongItems[currentPlayingIndex]) {
+            navigator.mediaSession.metadata = null;
+            return;
+        }
+        const songDiv = allSongItems[currentPlayingIndex];
+        const titleElem = songDiv.querySelector('.song-title');
+        const artistElem = songDiv.querySelector('.song-artist');
+        const title = titleElem ? titleElem.innerText : 'Неизвестный трек';
+        const artist = artistElem ? artistElem.innerText : 'Неизвестный исполнитель';
+        
+        // Опционально: добавьте обложку, если есть картинка у исполнителя
+        // const artwork = [{ src: './Музыкант/FACE.png', sizes: '512x512', type: 'image/png' }];
+        const metadata = new MediaMetadata({
+            title: title,
+            artist: artist,
+            album: 'Florik Music',
+            // artwork: artwork
+        });
+        navigator.mediaSession.metadata = metadata;
+    }
+
+    // Обработчики системных кнопок (плей/пауза, следующий, предыдущий)
+    navigator.mediaSession.setActionHandler('play', () => {
+        if (typeof toggleGlobalPlayPause === 'function') {
+            // Если ничего не играет или на паузе – запускаем
+            if (typeof currentPlayingIndex !== 'undefined' && (currentPlayingIndex === -1 || 
+                (allPlayers && allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'))?.audio.paused))) {
+                toggleGlobalPlayPause();
+            } else if (typeof toggleGlobalPlayPause === 'function') {
+                toggleGlobalPlayPause();
+            }
+        }
+    });
+    
+    navigator.mediaSession.setActionHandler('pause', () => {
+        if (typeof toggleGlobalPlayPause === 'function') {
+            const player = allPlayers && allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'));
+            if (player && !player.audio.paused) {
+                toggleGlobalPlayPause();
+            }
+        }
+    });
+    
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        if (typeof playPrevTrack === 'function') {
+            playPrevTrack();
+            updateMediaMetadata();
+        }
+    });
+    
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        if (typeof playNextTrack === 'function') {
+            playNextTrack();
+            updateMediaMetadata();
+        }
+    });
+
+    // Перехватываем событие смены трека, чтобы обновить метаданные на локскрине
+    // Сохраняем оригинальные функции, если они уже объявлены, и подменяем их
+    if (typeof window.updateGlobalTrackInfo === 'function') {
+        const originalUpdate = window.updateGlobalTrackInfo;
+        window.updateGlobalTrackInfo = function(index) {
+            originalUpdate(index);
+            updateMediaMetadata();
+        };
+    } else if (typeof updateGlobalTrackInfo === 'function') {
+        const originalUpdate = updateGlobalTrackInfo;
+        window.updateGlobalTrackInfo = function(index) {
+            originalUpdate(index);
+            updateMediaMetadata();
+        };
+    }
+    
+    // Также обновляем метаданные при каждом нажатии play/next/prev через наши функции
+    // "Прослушиваем" события окончания трека (уже есть playNextTrack)
+    // Дополнительно: при ручном клике по треку – обновляем
+    if (typeof handleSongItemClick === 'function') {
+        const originalClickHandler = handleSongItemClick;
+        window.handleSongItemClick = function(event) {
+            originalClickHandler(event);
+            setTimeout(updateMediaMetadata, 100);
+        };
+    }
+    
+    // Принудительное обновление при запуске
+    setTimeout(updateMediaMetadata, 1000);
+    
+    // Обновляем метаданные каждый раз, когда меняется currentPlayingIndex
+    // Периодическая проверка (для надёжности)
+    let lastIndex = -1;
+    setInterval(() => {
+        if (typeof currentPlayingIndex !== 'undefined' && currentPlayingIndex !== lastIndex) {
+            lastIndex = currentPlayingIndex;
+            updateMediaMetadata();
+        }
+    }, 500);
+})();
     </script>
 </body>
 </html>

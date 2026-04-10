@@ -194,12 +194,39 @@
             margin: 0.5rem auto 0;
             border-radius: 3px;
         }
+        /* Горизонтальный скролл для списка исполнителей (центрирование на ПК) */
         .artists-grid {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 1rem;
+            flex-wrap: nowrap;              /* Запрещаем перенос */
+            overflow-x: auto;               /* Горизонтальная прокрутка */
+            overflow-y: hidden;
+            gap: 1.5rem;                   /* Расстояние между карточками */
+            padding: 0.5rem 0 1rem 0;      /* Вертикальные отступы, горизонтальные убираем */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            
+            /* Центрирование на больших экранах */
+            max-width: 100%;               /* Чтобы не вылезать за пределы родителя */
+            margin: 0 auto;                /* Центрирование по горизонтали */
+            justify-content: flex-start;   /* Карточки прижаты к началу, не растягиваются */
+        }
+
+        /* Карточка артиста – фиксированная ширина, не сжимается */
+        .artist-card {
+            flex: 0 0 auto;
+            width: 150px;                  /* Задайте нужную ширину */
+            scroll-snap-align: start;
+            /* Остальные стили карточки остаются без изменений */
+        }
+
+        /* Для очень маленьких экранов можно чуть уменьшить ширину карточки */
+        @media (max-width: 480px) {
+            .artist-card {
+                width: 130px;
+            }
+            .artists-grid {
+                gap: 1rem;
+            }
         }
         .artist-card {
             background: var(--card-bg);
@@ -960,7 +987,7 @@
             { name: "FACE", avatar: "./Музыкант/FACE.png", url: "./face.html" },
             { name: "mr. Credo", avatar: "./Музыкант/mr. Credo.png", url: "./mr.credo.html" },
             { name: "PHARAOH", avatar: "./Музыкант/PHARAOH.png", url: "./PHARAOH.html" },
-            { name: "GUF", avatar: "./Музыкант/GUF.png", url: "./GUF.html" },
+            { name: "GUF", avatar: "./Музыкант/GUF.png", url: "./GUF.html" }
         ];
         const artistsGrid = document.getElementById('artistsGrid');
         function renderArtists() {

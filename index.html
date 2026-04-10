@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Florik — Музыка | бета версия</title>
+    <title>Florik — Музыка | Кастомные плееры и чарты</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" href="https://vki7.okcdn.ru/i?r=CICaQJv1RQZIqEhgaodSLR1KLtxTOn52Q4RHLL7Vm3JVBGZbP3leH0RC5qO3gdzrmxuIHSJekcCfq2q6Wou6tMyrsUbZmdCaNbGhOrd_ehQqSoL-kCi5R9bXIN43r7qpJs4cUsS2seUyucPvclnSMa_tJWrI_5wHZ6_IOE4EGRzbjuzjTh_BQso7CQEXZv_JQcg-W5H3Yc-dwHL7AAAAKQ" type="image/x-icon">
     <meta name="theme-color" content="#121212">
@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="FLORIK MUSIC">
     <meta name="description" content="Florik музыка — кастомные плееры, чарты, твои любимые треки">
     <style>
+        /* ----- Анимация загрузки ----- */
         .loader-wrapper {
             position: fixed;
             top: 0;
@@ -485,7 +486,7 @@
         <header>
             <div class="header-content">
                 <h1>Florik 🎵 Музыка</h1>
-                <p class="tagline">Песни которые зацензурены или артистов которых нет на русских площадках, то это первая площадка где есть известные артисты и известные песни без цензуры. (не все конечно но это бето версия)</p>
+                <p class="tagline">Кастомные плееры · Чарты · Новые релизы</p>
                 <div class="social-links">
                     <a href="https://t.me/+tICn0-HA9ng4NGUy" class="TGK"><img src="https://github.com/kirill-Fe/projects/blob/main/IMG/KF.png?raw=true" alt="TGK" style="width: 100%; border-radius: 100px;"></a>
                     <a href="https://vk.com/Kirill_Florik" class="VK"><i class="fab fa-vk"></i></a>
@@ -576,6 +577,29 @@
                     <audio src="./Музыка(PHARAOH)/Pharaoh_-_Na_lune_81157777.mp3" preload="metadata"></audio>
                 </div>
 
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">ЧП</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/Basta_GU_-_CHP_48616530.mp3" preload="metadata"></audio>
+                </div>
+                
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Ice Baby</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/GU_-_Ice_Baby_48616343.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Кто как играет</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/777904_a9de56bc-kto-kak-igraet.mp3" preload="metadata"></audio>
+                </div>
 
                 </div>
             </div>
@@ -935,7 +959,8 @@
         const artistsData = [
             { name: "FACE", avatar: "./Музыкант/FACE.png", url: "./face.html" },
             { name: "mr. Credo", avatar: "./Музыкант/mr. Credo.png", url: "./mr.credo.html" },
-            { name: "PHARAOH", avatar: "./Музыкант/PHARAOH.png", url: "./PHARAOH.html" }
+            { name: "PHARAOH", avatar: "./Музыкант/PHARAOH.png", url: "./PHARAOH.html" },
+            { name: "GUF", avatar: "./Музыкант/GUF.png", url: "./GUF.html" },
         ];
         const artistsGrid = document.getElementById('artistsGrid');
         function renderArtists() {
@@ -1005,14 +1030,14 @@
                 }, 800);
             }, 1000);
         });
-        // ========== Media Session API — управление с заблокированного экрана ==========
-(function initMediaSessionSupport() {
+// ========== Media Session API + iOS fix (полная версия) ==========
+(function initMediaSessionWithFix() {
     if (!('mediaSession' in navigator)) {
-        console.log('Media Session API не поддерживается браузером');
+        console.log('Media Session API не поддерживается');
         return;
     }
 
-    // Функция обновления метаданных (название трека, исполнитель) на локскрине
+    // Обновление метаданных (название, исполнитель) на экране блокировки
     function updateMediaMetadata() {
         if (typeof currentPlayingIndex === 'undefined' || currentPlayingIndex === -1 || !allSongItems || !allSongItems[currentPlayingIndex]) {
             navigator.mediaSession.metadata = null;
@@ -1023,47 +1048,108 @@
         const artistElem = songDiv.querySelector('.song-artist');
         const title = titleElem ? titleElem.innerText : 'Неизвестный трек';
         const artist = artistElem ? artistElem.innerText : 'Неизвестный исполнитель';
-        
-        // Опционально: добавьте обложку, если есть картинка у исполнителя
-        // const artwork = [{ src: './Музыкант/FACE.png', sizes: '512x512', type: 'image/png' }];
         const metadata = new MediaMetadata({
             title: title,
             artist: artist,
-            album: 'Florik Music',
-            // artwork: artwork
+            album: 'florik-project'
         });
         navigator.mediaSession.metadata = metadata;
     }
 
-    // Обработчики системных кнопок (плей/пауза, следующий, предыдущий)
+    // Принудительное воспроизведение с повторными попытками (необходимо для iOS)
+    function forcePlayAudio(audioElement, maxRetries = 2) {
+        if (!audioElement) return Promise.reject('no audio');
+        let retries = 0;
+        const attemptPlay = () => {
+            return audioElement.play().catch(err => {
+                console.warn('play failed, retry:', err);
+                if (retries < maxRetries) {
+                    retries++;
+                    return new Promise(resolve => setTimeout(resolve, 150)).then(attemptPlay);
+                }
+                throw err;
+            });
+        };
+        return attemptPlay();
+    }
+
+    // Переопределяем playNextTrack и playPrevTrack, чтобы после смены трека принудительно запускать воспроизведение
+    if (typeof window.playNextTrack === 'function') {
+        const originalNext = window.playNextTrack;
+        window.playNextTrack = function() {
+            originalNext();
+            setTimeout(() => {
+                if (typeof currentPlayingIndex !== 'undefined' && currentPlayingIndex !== -1) {
+                    const audio = allSongItems[currentPlayingIndex]?.querySelector('audio');
+                    if (audio && audio.paused) {
+                        forcePlayAudio(audio).catch(e => console.log('auto-play next failed:', e));
+                    }
+                }
+            }, 80);
+        };
+    } else if (typeof playNextTrack === 'function') {
+        const originalNext = playNextTrack;
+        playNextTrack = function() {
+            originalNext();
+            setTimeout(() => {
+                if (typeof currentPlayingIndex !== 'undefined' && currentPlayingIndex !== -1) {
+                    const audio = allSongItems[currentPlayingIndex]?.querySelector('audio');
+                    if (audio && audio.paused) {
+                        forcePlayAudio(audio).catch(e => console.log('auto-play next failed:', e));
+                    }
+                }
+            }, 80);
+        };
+    }
+
+    if (typeof window.playPrevTrack === 'function') {
+        const originalPrev = window.playPrevTrack;
+        window.playPrevTrack = function() {
+            originalPrev();
+            setTimeout(() => {
+                if (typeof currentPlayingIndex !== 'undefined' && currentPlayingIndex !== -1) {
+                    const audio = allSongItems[currentPlayingIndex]?.querySelector('audio');
+                    if (audio && audio.paused) {
+                        forcePlayAudio(audio).catch(e => console.log('auto-play prev failed:', e));
+                    }
+                }
+            }, 80);
+        };
+    } else if (typeof playPrevTrack === 'function') {
+        const originalPrev = playPrevTrack;
+        playPrevTrack = function() {
+            originalPrev();
+            setTimeout(() => {
+                if (typeof currentPlayingIndex !== 'undefined' && currentPlayingIndex !== -1) {
+                    const audio = allSongItems[currentPlayingIndex]?.querySelector('audio');
+                    if (audio && audio.paused) {
+                        forcePlayAudio(audio).catch(e => console.log('auto-play prev failed:', e));
+                    }
+                }
+            }, 80);
+        };
+    }
+
+    // Обработчики системных кнопок (локскрин, гарнитура)
     navigator.mediaSession.setActionHandler('play', () => {
         if (typeof toggleGlobalPlayPause === 'function') {
-            // Если ничего не играет или на паузе – запускаем
-            if (typeof currentPlayingIndex !== 'undefined' && (currentPlayingIndex === -1 || 
-                (allPlayers && allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'))?.audio.paused))) {
-                toggleGlobalPlayPause();
-            } else if (typeof toggleGlobalPlayPause === 'function') {
-                toggleGlobalPlayPause();
-            }
+            toggleGlobalPlayPause();
         }
     });
-    
     navigator.mediaSession.setActionHandler('pause', () => {
         if (typeof toggleGlobalPlayPause === 'function') {
-            const player = allPlayers && allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'));
+            const player = allPlayers?.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'));
             if (player && !player.audio.paused) {
                 toggleGlobalPlayPause();
             }
         }
     });
-    
     navigator.mediaSession.setActionHandler('previoustrack', () => {
         if (typeof playPrevTrack === 'function') {
             playPrevTrack();
             updateMediaMetadata();
         }
     });
-    
     navigator.mediaSession.setActionHandler('nexttrack', () => {
         if (typeof playNextTrack === 'function') {
             playNextTrack();
@@ -1071,49 +1157,38 @@
         }
     });
 
-    // Перехватываем событие смены трека, чтобы обновить метаданные на локскрине
-    // Сохраняем оригинальные функции, если они уже объявлены, и подменяем их
-    if (typeof window.updateGlobalTrackInfo === 'function') {
-        const originalUpdate = window.updateGlobalTrackInfo;
-        window.updateGlobalTrackInfo = function(index) {
-            originalUpdate(index);
-            updateMediaMetadata();
-        };
-    } else if (typeof updateGlobalTrackInfo === 'function') {
-        const originalUpdate = updateGlobalTrackInfo;
-        window.updateGlobalTrackInfo = function(index) {
-            originalUpdate(index);
-            updateMediaMetadata();
-        };
-    }
-    
-    // Также обновляем метаданные при каждом нажатии play/next/prev через наши функции
-    // "Прослушиваем" события окончания трека (уже есть playNextTrack)
-    // Дополнительно: при ручном клике по треку – обновляем
-    if (typeof handleSongItemClick === 'function') {
-        const originalClickHandler = handleSongItemClick;
-        window.handleSongItemClick = function(event) {
-            originalClickHandler(event);
-            setTimeout(updateMediaMetadata, 100);
-        };
-    }
-    
-    // Принудительное обновление при запуске
-    setTimeout(updateMediaMetadata, 1000);
-    
-    // Обновляем метаданные каждый раз, когда меняется currentPlayingIndex
-    // Периодическая проверка (для надёжности)
+    // Отслеживаем изменение текущего трека для обновления метаданных
     let lastIndex = -1;
-    setInterval(() => {
+    function trackIndexObserver() {
         if (typeof currentPlayingIndex !== 'undefined' && currentPlayingIndex !== lastIndex) {
             lastIndex = currentPlayingIndex;
             updateMediaMetadata();
         }
-    }, 500);
+        requestAnimationFrame(trackIndexObserver);
+    }
+    trackIndexObserver();
+
+    // Дополнительно: обновляем метаданные при окончании трека (через прослушку аудио)
+    if (typeof allPlayers !== 'undefined' && allPlayers) {
+        const hookAudioEnded = () => {
+            allPlayers.forEach(player => {
+                if (player.audio && !player.audio._mediaSessionHooked) {
+                    player.audio._mediaSessionHooked = true;
+                    player.audio.addEventListener('ended', () => {
+                        setTimeout(updateMediaMetadata, 100);
+                    });
+                }
+            });
+        };
+        hookAudioEnded();
+        // Наблюдатель за появлением новых плееров (если динамически добавляются)
+        const observer = new MutationObserver(hookAudioEnded);
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
 })();
     </script>
 
-        <script>
+    <script>
         // ========== БАЗОВАЯ ЗАЩИТА ОТ F12 И ИНСТРУМЕНТОВ РАЗРАБОТЧИКА ==========
 (function() {
     // 1. Запрет контекстного меню (правая кнопка мыши)

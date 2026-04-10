@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>mr. Credo — Музыкант | Florik</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ----- Полностью стиль Florik, но без прелоадера и header ----- */
+        :root {
+            --primary: #8a63f2;
+            --secondary: #63f2c8;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #e0e0e0;
+            --lighter: #ffffff;
+            --accent: #ff7e5f;
+            --card-bg: #1e1e1e;
+            --text: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --slider-bg: #333;
+        }
+        [data-theme="light"] {
+            --dark: #f9f9f9;
+            --darker: #e0e0e0;
+            --light: #333333;
+            --lighter: #121212;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-secondary: #666666;
+            --slider-bg: #ddd;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.1s;
+        }
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 2rem;
+        }
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--darker); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        /* Курсоры как в оригинале */
+        html { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%238a63f2" d="M3 3l18 18-6-6V11L7 6v11z"/></svg>'), auto; }
+        a, button, .song-item, .play-pause-btn, .theme-icon { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff7e5f" d="M3 3l18 18-6-6V11L7 6v11z"/></svg>'), pointer; }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 2rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* Блок с аватаркой и информацией (слева направо) */
+        .artist-profile {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 1.8rem;
+        }
+        .artist-avatar-large {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--secondary);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: var(--darker);
+        }
+        .artist-info {
+            flex: 1;
+        }
+        .artist-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .artist-bio {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+        .artist-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .artist-stats span {
+            background: rgba(138,99,242,0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            color: var(--secondary);
+        }
+        
+        /* Секция треков */
+        .tracks-section {
+            margin-top: 1rem;
+        }
+        .tracks-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            position: relative;
+        }
+        .tracks-title:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary);
+            margin-top: 0.3rem;
+            border-radius: 3px;
+        }
+        
+        .songs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .song-item {
+            background: rgba(128,128,128,0.08);
+            border-radius: 20px;
+            padding: 0.8rem 1.2rem;
+            border-left: 4px solid var(--primary);
+            transition: all 0.2s;
+        }
+        .song-item:hover {
+            background: rgba(138,99,242,0.12);
+            transform: translateX(4px);
+        }
+        .song-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .song-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--lighter);
+        }
+        .song-artist {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        /* Кастомный плеер внутри трека */
+        .custom-audio-controls {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: rgba(0,0,0,0.2);
+            padding: 6px 12px;
+            border-radius: 60px;
+            margin-top: 6px;
+        }
+        .play-pause-btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .play-pause-btn:hover {
+            background: var(--accent);
+            transform: scale(1.03);
+        }
+        .seek-slider {
+            flex: 3;
+            min-width: 140px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: var(--slider-bg);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .seek-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+        }
+        .time-display {
+            font-family: monospace;
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.4);
+            padding: 4px 10px;
+            border-radius: 30px;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        /* Заглушка для треков без аудио */
+        .song-play {
+            background: none;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link i {
+            margin-right: 6px;
+        }
+        .back-link:hover {
+            color: var(--secondary);
+        }
+        
+        /* Тема переключатель (маленький) */
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50px;
+            padding: 5px;
+            display: flex;
+            gap: 4px;
+            backdrop-filter: blur(5px);
+        }
+        .theme-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+        }
+        .theme-icon.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 680px) {
+            body { padding: 1rem; }
+            .container { padding: 1.2rem; }
+            .artist-profile { flex-direction: column; text-align: center; }
+            .artist-avatar-large { width: 140px; height: 140px; margin: 0 auto; }
+            .artist-name { font-size: 2rem; }
+            .custom-audio-controls { flex-wrap: wrap; justify-content: center; }
+        }
+        
+        .floating-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            z-index: 10001;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="theme-switcher" id="themeSwitcher">
+        <div class="theme-icon active" data-theme="dark">🌙</div>
+        <div class="theme-icon" data-theme="light">☀️</div>
+    </div>
+
+    <div class="container">
+        <a href="./index.html" class="back-link"><i class="fas fa-arrow-left"></i> На главную</a>
+        
+        <!-- Профиль музыканта: аватарка слева, информация справа -->
+        <div class="artist-profile">
+            <img class="artist-avatar-large" src="./Музыкант/mr. Credo.png" alt="FACE" id="artistAvatar">
+            <div class="artist-info">
+                <h1 class="artist-name" id="artistName">mr. Credo</h1>
+                <div class="artist-stats">
+                    <span><i class="fas fa-music"></i> 6 треков</span>
+                </div>
+                <div class="artist-bio">
+                    Популярный исполнитель популярные песни "Вор", "Медляк", "Чудная долина".
+                </div>
+            </div>
+        </div>
+        
+        <!-- Секция "Треки автора" -->
+        <div class="tracks-section">
+            <h2 class="tracks-title"><i class="fas fa-list-ul"></i> Треки автора</h2>
+            <div class="songs-list" id="songsList">
+                    
+                    <div class="song-item">
+                        <div class="song-info">
+                            <span class="song-title">1. Вор</span>
+                            <span class="song-artist">mr. Credo</span>
+                        </div>
+                        <audio controls src="./музыка(mr. Credo)/Mr. Credo - Вор (hitmos.fm).mp3" preload="metadata"></audio>
+                    </div>
+
+                    <div class="song-item">
+                        <div class="song-info">
+                            <span class="song-title">2. Медляк</span>
+                            <span class="song-artist">mr. Credo</span>
+                        </div>
+                        <audio controls src="./музыка(mr. Credo)/Mr. Credo - Медляк (hitmos.fm).mp3" preload="metadata"></audio>
+                    </div>
+
+                    <div class="song-item">
+                        <div class="song-info">
+                            <span class="song-title">3. Давай Лавэ!</span>
+                            <span class="song-artist">mr. Credo</span>
+                        </div>
+                        <audio controls src="./музыка(mr. Credo)/Mr. Credo - Давай Лавэ! (hitmos.fm).mp3" preload="metadata"></audio>
+                    </div>
+
+                    <div class="song-item">
+                        <div class="song-info">
+                            <span class="song-title">4. Вика-Виктория</span>
+                            <span class="song-artist">mr. Credo</span>
+                        </div>
+                        <audio controls src="./музыка(mr. Credo)/Mr. Credo - Вика-Виктория (hitmos.fm).mp3" preload="metadata"></audio>
+                    </div>
+
+                    <div class="song-item">
+                        <div class="song-info">
+                            <span class="song-title">5. Нувориш</span>
+                            <span class="song-artist">mr. Credo</span>
+                        </div>
+                        <audio controls src="./музыка(mr. Credo)/Mr. Credo - Нувориш (hitmos.fm).mp3" preload="metadata"></audio>
+                    </div>
+
+                    <div class="song-item">
+                        <div class="song-info">
+                            <span class="song-title">6. Чудная долина</span>
+                            <span class="song-artist">mr. Credo</span>
+                        </div>
+                        <audio controls src="./музыка(mr. Credo)/Mr. Credo - Чудная долина (hitmos.fm).mp3" preload="metadata"></audio>
+                    </div>
+
+
+            </div>
+            <p style="margin-top: 1.5rem; font-size: 0.75rem; color: var(--text-secondary); text-align: center;">
+                🎧 <strong>Как добавить трек?</strong> Вставь <code>&lt;audio src="путь_к_файлу.mp3"&gt;&lt;/audio&gt;</code> внутрь <code>.song-item</code> — и автоматически появится кастомный плеер с ползунком и временем.
+            </p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Florik Music — страница исполнителя</p>
+    </footer>
+
+    <script>
+        // ---------- КАСТОМНЫЕ ПЛЕЕРЫ ДЛЯ ВСЕХ <audio> ВНУТРИ .song-item ----------
+        let allPlayers = []; // для возможности останавливать другие треки
+        
+        function formatTime(seconds) {
+            if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        function pauseAllExcept(currentAudio) {
+            allPlayers.forEach(player => {
+                if (player.audio !== currentAudio && !player.audio.paused) {
+                    player.audio.pause();
+                    if (player.playPauseBtn) player.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+        }
+        
+        function buildCustomPlayer(songItem, audioElement) {
+            if (songItem.querySelector('.custom-audio-controls')) return; // уже есть
+            
+            // Скрываем нативный плеер и удаляем кнопку-заглушку
+            audioElement.removeAttribute('controls');
+            audioElement.style.display = 'none';
+            const oldBtn = songItem.querySelector('.song-play');
+            if (oldBtn) oldBtn.remove();
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'custom-audio-controls';
+            
+            const playPauseBtn = document.createElement('button');
+            playPauseBtn.className = 'play-pause-btn';
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            
+            const seekSlider = document.createElement('input');
+            seekSlider.type = 'range';
+            seekSlider.className = 'seek-slider';
+            seekSlider.min = 0;
+            seekSlider.step = 0.01;
+            seekSlider.value = 0;
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'time-display';
+            timeSpan.textContent = '0:00 / 0:00';
+            
+            controlsDiv.appendChild(playPauseBtn);
+            controlsDiv.appendChild(seekSlider);
+            controlsDiv.appendChild(timeSpan);
+            
+            // Вставляем после .song-info
+            const infoBlock = songItem.querySelector('.song-info');
+            if (infoBlock) infoBlock.after(controlsDiv);
+            else songItem.appendChild(controlsDiv);
+            
+            function updateTimeAndSlider() {
+                if (!audioElement.duration || isNaN(audioElement.duration)) return;
+                const current = audioElement.currentTime;
+                const duration = audioElement.duration;
+                seekSlider.max = duration;
+                seekSlider.value = current;
+                timeSpan.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+            }
+            
+            audioElement.addEventListener('loadedmetadata', () => {
+                if (audioElement.duration && isFinite(audioElement.duration)) {
+                    seekSlider.max = audioElement.duration;
+                    timeSpan.textContent = `0:00 / ${formatTime(audioElement.duration)}`;
+                    seekSlider.disabled = false;
+                } else {
+                    seekSlider.disabled = true;
+                    timeSpan.textContent = `0:00 / ?:??`;
+                }
+            });
+            
+            audioElement.addEventListener('timeupdate', updateTimeAndSlider);
+            audioElement.addEventListener('ended', () => {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                seekSlider.value = 0;
+                if (audioElement.duration) timeSpan.textContent = `0:00 / ${formatTime(audioElement.duration)}`;
+            });
+            
+            seekSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val) && isFinite(val)) {
+                    audioElement.currentTime = val;
+                    updateTimeAndSlider();
+                }
+            });
+            
+            playPauseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (audioElement.paused) {
+                    pauseAllExcept(audioElement);
+                    audioElement.play().catch(err => {
+                        console.warn(err);
+                        showToast("❌ Не удалось воспроизвести трек (проверь путь к файлу)");
+                    });
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    audioElement.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+            
+            allPlayers.push({
+                audio: audioElement,
+                playPauseBtn: playPauseBtn,
+                seekSlider: seekSlider
+            });
+            
+            audioElement.addEventListener('error', () => {
+                showToast("⚠️ Ошибка загрузки аудиофайла");
+                playPauseBtn.disabled = true;
+                seekSlider.disabled = true;
+                timeSpan.textContent = `ошибка`;
+            });
+        }
+        
+        function enhanceAllSongs() {
+            const songItems = document.querySelectorAll('.song-item');
+            songItems.forEach(item => {
+                const audio = item.querySelector('audio');
+                if (audio && !item.querySelector('.custom-audio-controls')) {
+                    buildCustomPlayer(item, audio);
+                }
+            });
+            // Добавляем клик по song-item для паузы/плея
+            attachClickToItems();
+        }
+        
+        function attachClickToItems() {
+            const items = document.querySelectorAll('.song-item');
+            items.forEach(item => {
+                item.removeEventListener('click', handleItemClick);
+                item.addEventListener('click', handleItemClick);
+            });
+        }
+        
+        function handleItemClick(event) {
+            const target = event.target;
+            if (target.closest('.custom-audio-controls') || target.closest('.play-pause-btn') || target.closest('.seek-slider') || target.closest('.song-play')) {
+                return;
+            }
+            const songItem = event.currentTarget;
+            const audio = songItem.querySelector('audio');
+            if (!audio) return;
+            const player = allPlayers.find(p => p.audio === audio);
+            if (!player) return;
+            if (audio.paused) {
+                pauseAllExcept(audio);
+                audio.play().catch(e => showToast("Ошибка"));
+                if (player.playPauseBtn) player.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audio.pause();
+                if (player.playPauseBtn) player.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+        
+        // Функция для legacy кнопок (если нет аудио)
+        function initLegacyButtons() {
+            const legacyBtns = document.querySelectorAll('.song-play');
+            legacyBtns.forEach(btn => {
+                btn.removeEventListener('click', legacyHandler);
+                btn.addEventListener('click', legacyHandler);
+            });
+        }
+        
+        function legacyHandler(e) {
+            e.stopPropagation();
+            const song = this.getAttribute('data-song') || 'трек';
+            const artist = this.getAttribute('data-artist') || 'исполнитель';
+            showToast(`🎧 Демо-режим: ${song} — ${artist}. Добавьте тег <audio>`);
+        }
+        
+        let toastTimeout;
+        function showToast(msg) {
+            let toast = document.querySelector('.floating-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'floating-toast';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            toast.style.display = 'block';
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.style.display = 'none', 300);
+            }, 2500);
+        }
+        
+        // ---------- Тема (светлая/тёмная) ----------
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', saved);
+            const activeIcon = document.querySelector(`.theme-icon[data-theme="${saved}"]`);
+            if (activeIcon) activeIcon.classList.add('active');
+            document.querySelectorAll('.theme-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const theme = icon.getAttribute('data-theme');
+                    document.body.setAttribute('data-theme', theme);
+                    document.querySelectorAll('.theme-icon').forEach(i => i.classList.remove('active'));
+                    icon.classList.add('active');
+                    localStorage.setItem('theme', theme);
+                });
+            });
+        }
+        
+        // Можно задать конкретные данные для артиста (если нужно из картинки)
+        // Например, поменять аватарку и имя через атрибуты data, но для примера оставим статику
+        
+        // Запуск
+        document.addEventListener('DOMContentLoaded', () => {
+            enhanceAllSongs();
+            initLegacyButtons();
+            initTheme();
+        });
+    </script>
+</body>
+</html>

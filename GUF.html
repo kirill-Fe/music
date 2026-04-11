@@ -907,7 +907,7 @@
             const artistElem = songDiv.querySelector('.song-artist');
             const title = titleElem ? titleElem.innerText : 'Неизвестный трек';
             const artist = artistElem ? artistElem.innerText : 'Неизвестный исполнитель';
-            navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'Mr.Credo' });
+            navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'GUF' });
         }
 
         navigator.mediaSession.setActionHandler('play', () => toggleGlobalPlayPause());

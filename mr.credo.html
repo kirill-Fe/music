@@ -433,9 +433,11 @@
             <img class="artist-avatar-large" src="./Музыкант/mr. Credo.png" alt="mr. Credo" id="artistAvatar">
             <div class="artist-info">
                 <h1 class="artist-name" id="artistName">mr. Credo</h1>
+
                 <div class="artist-stats">
-                    <span><i class="fas fa-music"></i> 6 треков</span>
+                    <span><i class="fas fa-music"></i> <span id="trackCountDisplay"></span></span>
                 </div>
+
                 <div class="artist-bio">
                     Популярный исполнитель, хиты: "Вор", "Медляк", "Чудная долина".
                 </div>
@@ -513,257 +515,288 @@
     </div>
 
     <script>
-            // ---------- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ----------
-    let allSongItems = [];
-    let allPlayers = [];
-    let currentPlayingIndex = -1;
-
-    // ПАГИНАЦИЯ
-    let currentPage = 1;
-    let itemsPerPage = 5;
-    let totalPages = 1;
-
-    let globalPlayPauseBtn = null;
-    let globalTrackNameSpan = null;
-    let globalTrackArtistSpan = null;
-
-    // Вспомогательные функции
-    function formatTime(seconds) {
-        if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
-
-    function showToast(msg) {
-        let toast = document.querySelector('.floating-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.className = 'floating-toast';
-            document.body.appendChild(toast);
+        // ---------- ПЕРЕМЕННЫЕ ----------
+        let allSongItems = [];
+        let allPlayers = [];
+        let currentPlayingIndex = -1;
+        
+        // ПАГИНАЦИЯ
+        let currentPage = 1;
+        let itemsPerPage = 5;
+        let totalPages = 1;
+        
+        let globalPlayPauseBtn = null;
+        let globalTrackNameSpan = null;
+        let globalTrackArtistSpan = null;
+        
+        // Вспомогательные функции
+        function formatTime(seconds) {
+            if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
-        toast.textContent = msg;
-        toast.style.opacity = '1';
-        toast.style.display = 'block';
-        if (window.toastTimeout) clearTimeout(window.toastTimeout);
-        window.toastTimeout = setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => { if(toast) toast.style.display = 'none'; }, 300);
-        }, 2500);
-    }
-
-    function pauseAllExcept(currentAudio) {
-        allPlayers.forEach(player => {
-            if (player.audio !== currentAudio && !player.audio.paused) {
-                player.audio.pause();
-                if (player.playPauseBtn) player.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        
+        function showToast(msg) {
+            let toast = document.querySelector('.floating-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'floating-toast';
+                document.body.appendChild(toast);
             }
-        });
-        updateGlobalPlayPauseIcon();
-    }
-
-    function updateGlobalPlayPauseIcon() {
-        if (!globalPlayPauseBtn) return;
-        if (currentPlayingIndex !== -1) {
-            const currentPlayer = allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'));
-            if (currentPlayer && !currentPlayer.audio.paused) globalPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            else globalPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        } else globalPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-    }
-
-    function updateGlobalTrackInfo(index) {
-        if (index === -1 || !allSongItems[index]) {
-            if (globalTrackNameSpan) globalTrackNameSpan.textContent = "Не играет";
-            if (globalTrackArtistSpan) globalTrackArtistSpan.textContent = "";
-            return;
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            toast.style.display = 'block';
+            if (window.toastTimeout) clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => { if(toast) toast.style.display = 'none'; }, 300);
+            }, 2500);
         }
-        const songDiv = allSongItems[index];
-        const titleSpan = songDiv.querySelector('.song-title');
-        const artistSpan = songDiv.querySelector('.song-artist');
-        if (titleSpan && globalTrackNameSpan) globalTrackNameSpan.textContent = titleSpan.innerText;
-        if (artistSpan && globalTrackArtistSpan) globalTrackArtistSpan.textContent = artistSpan.innerText;
-    }
-
-    // ========== ФУНКЦИИ ПАГИНАЦИИ ==========
-    function renderPage(page) {
-        if (!allSongItems.length) return;
-        const start = (page - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        allSongItems.forEach((item, idx) => {
-            item.style.display = (idx >= start && idx < end) ? '' : 'none';
-        });
-        updatePaginationUI(page);
-    }
-
-    function updatePaginationUI(activePage) {
-        const container = document.getElementById('paginationContainer');
-        if (!container) return;
-        container.innerHTML = '';
-        if (totalPages <= 1) return;
-
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'page-btn';
-        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
-        prevBtn.disabled = (activePage === 1);
-        prevBtn.addEventListener('click', () => { if (activePage > 1) goToPage(activePage - 1); });
-        container.appendChild(prevBtn);
-
-        const numbersDiv = document.createElement('div');
-        numbersDiv.className = 'page-numbers';
-        const maxVisible = 5;
-        let startPage = Math.max(1, activePage - Math.floor(maxVisible/2));
-        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-        if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
-
-        for (let i = startPage; i <= endPage; i++) {
-            const pageBtn = document.createElement('button');
-            pageBtn.textContent = i;
-            pageBtn.className = `page-btn ${i === activePage ? 'active' : ''}`;
-            pageBtn.addEventListener('click', () => goToPage(i));
-            numbersDiv.appendChild(pageBtn);
+        
+        // ----- СКЛОНЕНИЕ СЛОВА "ТРЕК" -----
+        function declensionTrack(num) {
+            const n = Math.abs(num) % 100;
+            const n1 = n % 10;
+            if (n > 10 && n < 20) return 'треков';
+            if (n1 > 1 && n1 < 5) return 'трека';
+            if (n1 === 1) return 'трек';
+            return 'треков';
         }
-        container.appendChild(numbersDiv);
-
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'page-btn';
-        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        nextBtn.disabled = (activePage === totalPages);
-        nextBtn.addEventListener('click', () => { if (activePage < totalPages) goToPage(activePage + 1); });
-        container.appendChild(nextBtn);
-
-        const infoSpan = document.createElement('span');
-        infoSpan.className = 'pagination-info';
-        infoSpan.textContent = `${activePage} / ${totalPages}`;
-        container.appendChild(infoSpan);
-    }
-
-    function goToPage(page) {
-        if (page < 1 || page > totalPages) return;
-        currentPage = page;
-        renderPage(currentPage);
-    }
-
-    function syncPageWithTrack(index) {
-        if (index === -1 || !allSongItems.length) return;
-        const targetPage = Math.floor(index / itemsPerPage) + 1;
-        if (targetPage !== currentPage) {
-            currentPage = targetPage;
+        
+        function updateTrackCount() {
+            const totalTracks = allSongItems.length;
+            const countSpan = document.getElementById('trackCountDisplay');
+            if (countSpan) {
+                countSpan.textContent = `${totalTracks} ${declensionTrack(totalTracks)}`;
+            }
+        }
+        
+        function pauseAllExcept(currentAudio) {
+            allPlayers.forEach(player => {
+                if (player.audio !== currentAudio && !player.audio.paused) {
+                    player.audio.pause();
+                    if (player.playPauseBtn) player.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+            updateGlobalPlayPauseIcon();
+        }
+        
+        function updateGlobalPlayPauseIcon() {
+            if (!globalPlayPauseBtn) return;
+            if (currentPlayingIndex !== -1) {
+                const currentPlayer = allPlayers.find(p => p.audio === allSongItems[currentPlayingIndex]?.querySelector('audio'));
+                if (currentPlayer && !currentPlayer.audio.paused) globalPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                else globalPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            } else globalPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+        
+        function updateGlobalTrackInfo(index) {
+            if (index === -1 || !allSongItems[index]) {
+                if (globalTrackNameSpan) globalTrackNameSpan.textContent = "Не играет";
+                if (globalTrackArtistSpan) globalTrackArtistSpan.textContent = "";
+                return;
+            }
+            const songDiv = allSongItems[index];
+            const titleSpan = songDiv.querySelector('.song-title');
+            const artistSpan = songDiv.querySelector('.song-artist');
+            if (titleSpan && globalTrackNameSpan) globalTrackNameSpan.textContent = titleSpan.innerText;
+            if (artistSpan && globalTrackArtistSpan) globalTrackArtistSpan.textContent = artistSpan.innerText;
+        }
+        
+        // ========== ПАГИНАЦИЯ ==========
+        function renderPage(page) {
+            if (!allSongItems.length) return;
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            allSongItems.forEach((item, idx) => {
+                item.style.display = (idx >= start && idx < end) ? '' : 'none';
+            });
+            updatePaginationUI(page);
+        }
+        
+        function updatePaginationUI(activePage) {
+            const container = document.getElementById('paginationContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            if (totalPages <= 1) return;
+            
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.disabled = (activePage === 1);
+            prevBtn.addEventListener('click', () => { if (activePage > 1) goToPage(activePage - 1); });
+            container.appendChild(prevBtn);
+            
+            const numbersDiv = document.createElement('div');
+            numbersDiv.className = 'page-numbers';
+            const maxVisible = 5;
+            let startPage = Math.max(1, activePage - Math.floor(maxVisible/2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `page-btn ${i === activePage ? 'active' : ''}`;
+                pageBtn.addEventListener('click', () => goToPage(i));
+                numbersDiv.appendChild(pageBtn);
+            }
+            container.appendChild(numbersDiv);
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.disabled = (activePage === totalPages);
+            nextBtn.addEventListener('click', () => { if (activePage < totalPages) goToPage(activePage + 1); });
+            container.appendChild(nextBtn);
+            
+            const infoSpan = document.createElement('span');
+            infoSpan.className = 'pagination-info';
+            infoSpan.textContent = `${activePage} / ${totalPages}`;
+            container.appendChild(infoSpan);
+        }
+        
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
             renderPage(currentPage);
-        } else {
-            renderPage(currentPage);
         }
-    }
-
-    // ========== ОСНОВНЫЕ ФУНКЦИИ ВОСПРОИЗВЕДЕНИЯ ==========
-    function playTrackByIndex(index, autoPlay = true) {
-        if (!allSongItems.length) return;
-        if (index < 0) index = 0;
-        if (index >= allSongItems.length) index = 0;
-
-        const targetSong = allSongItems[index];
-        const targetAudio = targetSong.querySelector('audio');
-        if (!targetAudio) { showToast("Аудио недоступно"); return; }
-        const playerData = allPlayers.find(p => p.audio === targetAudio);
-        if (!playerData) return;
-
-        pauseAllExcept(targetAudio);
-        if (targetAudio.paused && autoPlay) {
-            targetAudio.play().catch(err => { console.warn(err); showToast("Ошибка воспроизведения"); });
+        
+        function syncPageWithTrack(index) {
+            if (index === -1 || !allSongItems.length) return;
+            const targetPage = Math.floor(index / itemsPerPage) + 1;
+            if (targetPage !== currentPage) {
+                currentPage = targetPage;
+                renderPage(currentPage);
+            } else {
+                renderPage(currentPage);
+            }
         }
-        if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        currentPlayingIndex = index;
-        updateGlobalTrackInfo(index);
-        updateGlobalPlayPauseIcon();
-        syncPageWithTrack(index);  // синхронизация страницы
-    }
-
-    function playNextTrack() {
-        if (!allSongItems.length) return;
-        let nextIndex = (currentPlayingIndex + 1) % allSongItems.length;
-        playTrackByIndex(nextIndex, true);
-    }
-
-    function playPrevTrack() {
-        if (!allSongItems.length) return;
-        let prevIndex = (currentPlayingIndex - 1 + allSongItems.length) % allSongItems.length;
-        playTrackByIndex(prevIndex, true);
-    }
-
-    function toggleGlobalPlayPause() {
-        if (currentPlayingIndex === -1) {
-            if (allSongItems.length) playTrackByIndex(0, true);
-            return;
+        
+        // ========== ОСНОВНЫЕ ФУНКЦИИ ВОСПРОИЗВЕДЕНИЯ (с пагинацией) ==========
+        function playTrackByIndex(index, autoPlay = true) {
+            if (!allSongItems.length) return;
+            if (index < 0) index = 0;
+            if (index >= allSongItems.length) index = 0;
+            
+            const targetSong = allSongItems[index];
+            const targetAudio = targetSong.querySelector('audio');
+            if (!targetAudio) { showToast("Аудио недоступно"); return; }
+            const playerData = allPlayers.find(p => p.audio === targetAudio);
+            if (!playerData) return;
+            
+            pauseAllExcept(targetAudio);
+            if (targetAudio.paused && autoPlay) {
+                targetAudio.play().catch(err => { console.warn(err); showToast("Ошибка воспроизведения"); });
+            }
+            if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            currentPlayingIndex = index;
+            updateGlobalTrackInfo(index);
+            updateGlobalPlayPauseIcon();
+            syncPageWithTrack(index);
         }
-        const currentAudio = allSongItems[currentPlayingIndex]?.querySelector('audio');
-        if (!currentAudio) return;
-        const playerData = allPlayers.find(p => p.audio === currentAudio);
-        if (currentAudio.paused) {
-            pauseAllExcept(currentAudio);
-            currentAudio.play().catch(e => showToast("Ошибка"));
-            if (playerData?.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        } else {
-            currentAudio.pause();
-            if (playerData?.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        
+        function playNextTrack() {
+            if (!allSongItems.length) return;
+            let nextIndex = (currentPlayingIndex + 1) % allSongItems.length;
+            playTrackByIndex(nextIndex, true);
         }
-        updateGlobalPlayPauseIcon();
-    }
-
-    // ========== ПОСТРОЕНИЕ КАСТОМНОГО ПЛЕЕРА ==========
-    function buildCustomPlayer(songItem, audioElement) {
-        if (songItem.querySelector('.custom-audio-controls')) return;
-        audioElement.removeAttribute('controls');
-        audioElement.style.display = 'none';
-
-        const controlsDiv = document.createElement('div');
-        controlsDiv.className = 'custom-audio-controls';
-        const playPauseBtn = document.createElement('button');
-        playPauseBtn.className = 'play-pause-btn';
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        const seekSlider = document.createElement('input');
-        seekSlider.type = 'range';
-        seekSlider.className = 'seek-slider';
-        seekSlider.min = 0;
-        seekSlider.step = 0.01;
-        seekSlider.value = 0;
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'time-display';
-        timeSpan.textContent = '0:00 / 0:00';
-        controlsDiv.appendChild(playPauseBtn);
-        controlsDiv.appendChild(seekSlider);
-        controlsDiv.appendChild(timeSpan);
-
-        const infoBlock = songItem.querySelector('.song-info');
-        if (infoBlock) infoBlock.after(controlsDiv);
-        else songItem.appendChild(controlsDiv);
-
-        function updateTimeAndSlider() {
-            if (!audioElement.duration || isNaN(audioElement.duration)) return;
-            seekSlider.max = audioElement.duration;
-            seekSlider.value = audioElement.currentTime;
-            timeSpan.textContent = `${formatTime(audioElement.currentTime)} / ${formatTime(audioElement.duration)}`;
+        
+        function playPrevTrack() {
+            if (!allSongItems.length) return;
+            let prevIndex = (currentPlayingIndex - 1 + allSongItems.length) % allSongItems.length;
+            playTrackByIndex(prevIndex, true);
         }
-
-        audioElement.addEventListener('loadedmetadata', () => {
-            seekSlider.max = audioElement.duration;
-            timeSpan.textContent = `0:00 / ${formatTime(audioElement.duration)}`;
-            seekSlider.disabled = !(audioElement.duration && isFinite(audioElement.duration));
-        });
-        audioElement.addEventListener('timeupdate', updateTimeAndSlider);
-        audioElement.addEventListener('ended', () => {
+        
+        function toggleGlobalPlayPause() {
+            if (currentPlayingIndex === -1) {
+                if (allSongItems.length) playTrackByIndex(0, true);
+                return;
+            }
+            const currentAudio = allSongItems[currentPlayingIndex]?.querySelector('audio');
+            if (!currentAudio) return;
+            const playerData = allPlayers.find(p => p.audio === currentAudio);
+            if (currentAudio.paused) {
+                pauseAllExcept(currentAudio);
+                currentAudio.play().catch(e => showToast("Ошибка"));
+                if (playerData?.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                currentAudio.pause();
+                if (playerData?.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+            updateGlobalPlayPauseIcon();
+        }
+        
+        // ========== ПОСТРОЕНИЕ КАСТОМНОГО ПЛЕЕРА ==========
+        function buildCustomPlayer(songItem, audioElement) {
+            if (songItem.querySelector('.custom-audio-controls')) return;
+            audioElement.removeAttribute('controls');
+            audioElement.style.display = 'none';
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'custom-audio-controls';
+            const playPauseBtn = document.createElement('button');
+            playPauseBtn.className = 'play-pause-btn';
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            const seekSlider = document.createElement('input');
+            seekSlider.type = 'range';
+            seekSlider.className = 'seek-slider';
+            seekSlider.min = 0;
+            seekSlider.step = 0.01;
             seekSlider.value = 0;
-            if (audioElement.duration) timeSpan.textContent = `0:00 / ${formatTime(audioElement.duration)}`;
-            playNextTrack();
-        });
-        seekSlider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (!isNaN(val) && isFinite(val)) audioElement.currentTime = val;
-        });
-        playPauseBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (audioElement.paused) {
-                pauseAllExcept(audioElement);
-                audioElement.play().catch(err => showToast("Ошибка воспроизведения"));
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'time-display';
+            timeSpan.textContent = '0:00 / 0:00';
+            controlsDiv.appendChild(playPauseBtn);
+            controlsDiv.appendChild(seekSlider);
+            controlsDiv.appendChild(timeSpan);
+            
+            const infoBlock = songItem.querySelector('.song-info');
+            if (infoBlock) infoBlock.after(controlsDiv);
+            else songItem.appendChild(controlsDiv);
+            
+            function updateTimeAndSlider() {
+                if (!audioElement.duration || isNaN(audioElement.duration)) return;
+                seekSlider.max = audioElement.duration;
+                seekSlider.value = audioElement.currentTime;
+                timeSpan.textContent = `${formatTime(audioElement.currentTime)} / ${formatTime(audioElement.duration)}`;
+            }
+            audioElement.addEventListener('loadedmetadata', () => {
+                seekSlider.max = audioElement.duration;
+                timeSpan.textContent = `0:00 / ${formatTime(audioElement.duration)}`;
+                seekSlider.disabled = !(audioElement.duration && isFinite(audioElement.duration));
+            });
+            audioElement.addEventListener('timeupdate', updateTimeAndSlider);
+            audioElement.addEventListener('ended', () => {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                seekSlider.value = 0;
+                if (audioElement.duration) timeSpan.textContent = `0:00 / ${formatTime(audioElement.duration)}`;
+                playNextTrack();
+            });
+            seekSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val) && isFinite(val)) audioElement.currentTime = val;
+            });
+            playPauseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (audioElement.paused) {
+                    pauseAllExcept(audioElement);
+                    audioElement.play().catch(err => showToast("Ошибка воспроизведения"));
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    const idx = allSongItems.findIndex(item => item === songItem);
+                    if (idx !== -1 && currentPlayingIndex !== idx) {
+                        currentPlayingIndex = idx;
+                        updateGlobalTrackInfo(idx);
+                        syncPageWithTrack(idx);
+                    }
+                } else {
+                    audioElement.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+                updateGlobalPlayPauseIcon();
+            });
+            audioElement.addEventListener('play', () => {
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 const idx = allSongItems.findIndex(item => item === songItem);
                 if (idx !== -1 && currentPlayingIndex !== idx) {
@@ -771,173 +804,148 @@
                     updateGlobalTrackInfo(idx);
                     syncPageWithTrack(idx);
                 }
-            } else {
-                audioElement.pause();
-                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-            updateGlobalPlayPauseIcon();
-        });
-        audioElement.addEventListener('play', () => {
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            const idx = allSongItems.findIndex(item => item === songItem);
-            if (idx !== -1 && currentPlayingIndex !== idx) {
-                currentPlayingIndex = idx;
-                updateGlobalTrackInfo(idx);
-                syncPageWithTrack(idx);
-            }
-            updateGlobalPlayPauseIcon();
-        });
-        audioElement.addEventListener('pause', () => {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            updateGlobalPlayPauseIcon();
-        });
-        audioElement.addEventListener('error', () => {
-            showToast("❌ Ошибка загрузки трека");
-            playPauseBtn.disabled = true;
-            seekSlider.disabled = true;
-            timeSpan.textContent = "ошибка";
-        });
-        allPlayers.push({ audio: audioElement, playPauseBtn, seekSlider, timeSpan, songItem });
-    }
-
-    // ========== ИНИЦИАЛИЗАЦИЯ ТРЕКОВ ==========
-    function initAllSongs() {
-        const songsContainer = document.querySelector('.songs-list');
-        if (!songsContainer) return;
-        allSongItems = Array.from(songsContainer.querySelectorAll('.song-item'));
-        allSongItems.forEach(item => {
-            const audio = item.querySelector('audio');
-            if (audio && !item.querySelector('.custom-audio-controls')) buildCustomPlayer(item, audio);
-        });
-        // Пагинация
-        totalPages = Math.ceil(allSongItems.length / itemsPerPage);
-        if (totalPages < 1) totalPages = 1;
-        currentPage = 1;
-        renderPage(1);
-        attachSongItemClick();
-    }
-
-    function attachSongItemClick() {
-        allSongItems.forEach(item => {
-            item.removeEventListener('click', handleSongItemClick);
-            item.addEventListener('click', handleSongItemClick);
-        });
-    }
-
-    function handleSongItemClick(event) {
-        if (event.target.closest('.custom-audio-controls') || event.target.closest('.play-pause-btn') || event.target.closest('.seek-slider')) return;
-        const songItem = event.currentTarget;
-        const audio = songItem.querySelector('audio');
-        if (!audio) return;
-        const playerData = allPlayers.find(p => p.audio === audio);
-        if (!playerData) return;
-        if (audio.paused) {
-            pauseAllExcept(audio);
-            audio.play().catch(e => showToast("Ошибка"));
-            if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            const idx = allSongItems.findIndex(item => item === songItem);
-            if (idx !== -1) {
-                currentPlayingIndex = idx;
-                updateGlobalTrackInfo(idx);
-                syncPageWithTrack(idx);
-            }
-        } else {
-            audio.pause();
-            if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
-        updateGlobalPlayPauseIcon();
-    }
-
-    // ========== ГЛОБАЛЬНЫЕ КНОПКИ И КЛАВИАТУРА ==========
-    function initGlobalControls() {
-        globalPlayPauseBtn = document.getElementById('globalPlayPauseBtn');
-        const globalPrevBtn = document.getElementById('globalPrevBtn');
-        const globalNextBtn = document.getElementById('globalNextBtn');
-        globalTrackNameSpan = document.getElementById('globalTrackName');
-        globalTrackArtistSpan = document.getElementById('globalTrackArtist');
-        if (globalPlayPauseBtn) globalPlayPauseBtn.addEventListener('click', toggleGlobalPlayPause);
-        if (globalPrevBtn) globalPrevBtn.addEventListener('click', playPrevTrack);
-        if (globalNextBtn) globalNextBtn.addEventListener('click', playNextTrack);
-    }
-
-    function initKeyboardControls() {
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !e.target.matches('input, textarea, button, a')) {
-                e.preventDefault();
-                toggleGlobalPlayPause();
-            }
-            if (e.code === 'ArrowRight') { e.preventDefault(); playNextTrack(); }
-            if (e.code === 'ArrowLeft') { e.preventDefault(); playPrevTrack(); }
-        });
-    }
-
-    function initTheme() {
-        const saved = localStorage.getItem('theme') || 'dark';
-        document.body.setAttribute('data-theme', saved);
-        const activeIcon = document.querySelector(`.theme-icon[data-theme="${saved}"]`);
-        if (activeIcon) activeIcon.classList.add('active');
-        document.querySelectorAll('.theme-icon').forEach(icon => {
-            icon.addEventListener('click', () => {
-                const theme = icon.getAttribute('data-theme');
-                document.body.setAttribute('data-theme', theme);
-                document.querySelectorAll('.theme-icon').forEach(i => i.classList.remove('active'));
-                icon.classList.add('active');
-                localStorage.setItem('theme', theme);
+                updateGlobalPlayPauseIcon();
             });
-        });
-    }
-
-    // ========== MEDIA SESSION API ==========
-    (function initMediaSessionSupport() {
-        if (!('mediaSession' in navigator)) return;
-
-        function updateMediaMetadata() {
-            if (currentPlayingIndex === -1 || !allSongItems[currentPlayingIndex]) {
-                navigator.mediaSession.metadata = null;
-                return;
-            }
-            const songDiv = allSongItems[currentPlayingIndex];
-            const titleElem = songDiv.querySelector('.song-title');
-            const artistElem = songDiv.querySelector('.song-artist');
-            const title = titleElem ? titleElem.innerText : 'Неизвестный трек';
-            const artist = artistElem ? artistElem.innerText : 'Неизвестный исполнитель';
-            navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'Mr.Credo' });
+            audioElement.addEventListener('pause', () => {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                updateGlobalPlayPauseIcon();
+            });
+            audioElement.addEventListener('error', () => {
+                showToast("❌ Ошибка загрузки трека");
+                playPauseBtn.disabled = true;
+                seekSlider.disabled = true;
+                timeSpan.textContent = "ошибка";
+            });
+            allPlayers.push({ audio: audioElement, playPauseBtn, seekSlider, timeSpan, songItem });
         }
-
-        navigator.mediaSession.setActionHandler('play', () => toggleGlobalPlayPause());
-        navigator.mediaSession.setActionHandler('pause', () => toggleGlobalPlayPause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
-        navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
-
-        let lastIndex = -1;
-        setInterval(() => {
-            if (currentPlayingIndex !== lastIndex) {
-                lastIndex = currentPlayingIndex;
-                updateMediaMetadata();
+        
+        function initAllSongs() {
+            const songsContainer = document.querySelector('.songs-list');
+            if (!songsContainer) return;
+            allSongItems = Array.from(songsContainer.querySelectorAll('.song-item'));
+            allSongItems.forEach(item => {
+                const audio = item.querySelector('audio');
+                if (audio && !item.querySelector('.custom-audio-controls')) buildCustomPlayer(item, audio);
+            });
+            // Обновляем счетчик треков
+            updateTrackCount();
+            // Инициализация пагинации
+            totalPages = Math.ceil(allSongItems.length / itemsPerPage);
+            if (totalPages < 1) totalPages = 1;
+            currentPage = 1;
+            renderPage(1);
+            attachSongItemClick();
+        }
+        
+        function attachSongItemClick() {
+            allSongItems.forEach(item => {
+                item.removeEventListener('click', handleSongItemClick);
+                item.addEventListener('click', handleSongItemClick);
+            });
+        }
+        
+        function handleSongItemClick(event) {
+            if (event.target.closest('.custom-audio-controls') || event.target.closest('.play-pause-btn') || event.target.closest('.seek-slider')) return;
+            const songItem = event.currentTarget;
+            const audio = songItem.querySelector('audio');
+            if (!audio) return;
+            const playerData = allPlayers.find(p => p.audio === audio);
+            if (!playerData) return;
+            if (audio.paused) {
+                pauseAllExcept(audio);
+                audio.play().catch(e => showToast("Ошибка"));
+                if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                const idx = allSongItems.findIndex(item => item === songItem);
+                if (idx !== -1) {
+                    currentPlayingIndex = idx;
+                    updateGlobalTrackInfo(idx);
+                    syncPageWithTrack(idx);
+                }
+            } else {
+                audio.pause();
+                if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
-        }, 500);
-    })();
-
-    // ========== ЗАЩИТА ОТ ИНСТРУМЕНТОВ РАЗРАБОТЧИКА ==========
-    (function() {
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => {
-            if (e.key === 'F12' || e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.keyCode === 73)) || (e.ctrlKey && (e.key === 'U' || e.keyCode === 85))) e.preventDefault();
+            updateGlobalPlayPauseIcon();
+        }
+        
+        function initGlobalControls() {
+            globalPlayPauseBtn = document.getElementById('globalPlayPauseBtn');
+            const globalPrevBtn = document.getElementById('globalPrevBtn');
+            const globalNextBtn = document.getElementById('globalNextBtn');
+            globalTrackNameSpan = document.getElementById('globalTrackName');
+            globalTrackArtistSpan = document.getElementById('globalTrackArtist');
+            if (globalPlayPauseBtn) globalPlayPauseBtn.addEventListener('click', toggleGlobalPlayPause);
+            if (globalPrevBtn) globalPrevBtn.addEventListener('click', playPrevTrack);
+            if (globalNextBtn) globalNextBtn.addEventListener('click', playNextTrack);
+        }
+        
+        function initKeyboardControls() {
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !e.target.matches('input, textarea, button, a')) {
+                    e.preventDefault();
+                    toggleGlobalPlayPause();
+                }
+                if (e.code === 'ArrowRight') { e.preventDefault(); playNextTrack(); }
+                if (e.code === 'ArrowLeft') { e.preventDefault(); playPrevTrack(); }
+            });
+        }
+        
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', saved);
+            const activeIcon = document.querySelector(`.theme-icon[data-theme="${saved}"]`);
+            if (activeIcon) activeIcon.classList.add('active');
+            document.querySelectorAll('.theme-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const theme = icon.getAttribute('data-theme');
+                    document.body.setAttribute('data-theme', theme);
+                    document.querySelectorAll('.theme-icon').forEach(i => i.classList.remove('active'));
+                    icon.classList.add('active');
+                    localStorage.setItem('theme', theme);
+                });
+            });
+        }
+        
+        // Media Session API (как в index)
+        (function initMediaSession() {
+            if (!('mediaSession' in navigator)) return;
+            function updateMetadata() {
+                if (currentPlayingIndex === -1 || !allSongItems[currentPlayingIndex]) { navigator.mediaSession.metadata = null; return; }
+                const div = allSongItems[currentPlayingIndex];
+                const title = div.querySelector('.song-title')?.innerText || 'Трек';
+                const artist = div.querySelector('.song-artist')?.innerText || 'Artist';
+                navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'mr.credo' });
+            }
+            navigator.mediaSession.setActionHandler('play', () => toggleGlobalPlayPause());
+            navigator.mediaSession.setActionHandler('pause', () => toggleGlobalPlayPause());
+            navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
+            navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
+            let lastIdx = -1;
+            function observer() {
+                if (currentPlayingIndex !== lastIdx) { lastIdx = currentPlayingIndex; updateMetadata(); }
+                requestAnimationFrame(observer);
+            }
+            observer();
+        })();
+        
+        // Защита от инструментов разработчика
+        (function() {
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (e.key === 'F12' || e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.keyCode === 73)) || (e.ctrlKey && (e.key === 'U' || e.keyCode === 85))) e.preventDefault();
+            });
+            document.addEventListener('selectstart', e => e.preventDefault());
+            document.addEventListener('copy', e => e.preventDefault());
+        })();
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initAllSongs();
+            initGlobalControls();
+            initKeyboardControls();
+            initTheme();
+            const yearSpan = document.getElementById('currentYear');
+            if (yearSpan) yearSpan.innerText = new Date().getFullYear();
         });
-        document.addEventListener('selectstart', e => e.preventDefault());
-        document.addEventListener('copy', e => e.preventDefault());
-    })();
-
-    // ========== ЗАПУСК ==========
-    document.addEventListener('DOMContentLoaded', () => {
-        initAllSongs();
-        initGlobalControls();
-        initKeyboardControls();
-        initTheme();
-        const yearSpan = document.getElementById('currentYear');
-        if (yearSpan) yearSpan.innerText = new Date().getFullYear();
-    });
     </script>
-
 </body>
 </html>

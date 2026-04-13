@@ -213,7 +213,7 @@
             font-weight: 500;
         }
         
-        /* ========== СТИЛИ ПАГИНАЦИИ (добавлено) ========== */
+        /* ========== СТИЛИ ПАГИНАЦИИ ========== */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -430,9 +430,11 @@
             <img class="artist-avatar-large" src="./Музыкант/NoCensorship.png" alt="БЕЗ ЦЕНЗУРЫ" id="artistAvatar">
             <div class="artist-info">
                 <h1 class="artist-name" id="artistName">БЕЗ ЦЕНЗУРЫ</h1>
+
                 <div class="artist-stats">
-                    <span><i class="fas fa-music"></i> 2 треков</span>
+                    <span><i class="fas fa-music"></i> <span id="trackCountDisplay"></span></span>
                 </div>
+                
                 <div class="artist-bio">
                     все разные артисты без цензуры
                 </div>
@@ -625,6 +627,24 @@
             }, 2500);
         }
         
+        // ----- СКЛОНЕНИЕ СЛОВА "ТРЕК" -----
+        function declensionTrack(num) {
+            const n = Math.abs(num) % 100;
+            const n1 = n % 10;
+            if (n > 10 && n < 20) return 'треков';
+            if (n1 > 1 && n1 < 5) return 'трека';
+            if (n1 === 1) return 'трек';
+            return 'треков';
+        }
+        
+        function updateTrackCount() {
+            const totalTracks = allSongItems.length;
+            const countSpan = document.getElementById('trackCountDisplay');
+            if (countSpan) {
+                countSpan.textContent = `${totalTracks} ${declensionTrack(totalTracks)}`;
+            }
+        }
+        
         function pauseAllExcept(currentAudio) {
             allPlayers.forEach(player => {
                 if (player.audio !== currentAudio && !player.audio.paused) {
@@ -747,7 +767,6 @@
             currentPlayingIndex = index;
             updateGlobalTrackInfo(index);
             updateGlobalPlayPauseIcon();
-            // Автоматически показываем страницу с этим треком
             syncPageWithTrack(index);
         }
         
@@ -826,7 +845,7 @@
                 playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 seekSlider.value = 0;
                 if (audioElement.duration) timeSpan.textContent = `0:00 / ${formatTime(audioElement.duration)}`;
-                playNextTrack();  // переключение на следующий трек с пагинацией
+                playNextTrack();
             });
             seekSlider.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -881,6 +900,8 @@
                 const audio = item.querySelector('audio');
                 if (audio && !item.querySelector('.custom-audio-controls')) buildCustomPlayer(item, audio);
             });
+            // Обновляем счетчик треков
+            updateTrackCount();
             // Инициализация пагинации
             totalPages = Math.ceil(allSongItems.length / itemsPerPage);
             if (totalPages < 1) totalPages = 1;
@@ -980,7 +1001,7 @@
             observer();
         })();
         
-        // Защита от инструментов разработчика (как в index)
+        // Защита от инструментов разработчика
         (function() {
             document.addEventListener('contextmenu', e => e.preventDefault());
             document.addEventListener('keydown', e => {

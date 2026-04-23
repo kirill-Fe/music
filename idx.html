@@ -12,55 +12,6 @@
     <meta name="apple-mobile-web-app-title" content="FLORIK MUSIC">
     <meta name="description" content="Florik музыка — песни которых нет в РФ">
     <style>
-        /* ----- Анимация загрузки ----- */
-        .loader-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--darker);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        .loader {
-            width: 80px;
-            height: 80px;
-            position: relative;
-        }
-        .loader-inner {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 4px solid transparent;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        .loader-inner:nth-child(1) { animation-delay: 0.1s; border-top-color: var(--secondary); }
-        .loader-inner:nth-child(2) { animation-delay: 0.2s; border-top-color: var(--accent); }
-        .loader-inner:nth-child(3) { animation-delay: 0.3s; }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loader-text {
-            margin-top: 20px;
-            color: var(--lighter);
-            font-size: 1.2rem;
-            opacity: 0;
-            animation: fadeInText 0.5s ease 0.3s forwards;
-        }
-        @keyframes fadeInText { to { opacity: 1; } }
-        
-        .content { opacity: 0; transition: opacity 0.5s ease; }
-        .loaded .content { opacity: 1; }
-        .loaded .loader-wrapper { opacity: 0; pointer-events: none; }
-
         /* ----- Основные переменные (Florik стиль) ----- */
         :root {
             --primary: #8a63f2;
@@ -247,6 +198,46 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.05);
         }
+        /* Стили поиска */
+        .search-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: rgba(128,128,128,0.1);
+            border-radius: 60px;
+            padding: 0.3rem 1rem;
+            border: 1px solid rgba(138,99,242,0.3);
+        }
+        .search-container i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.7rem 0;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+        .search-clear {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 0.3rem;
+            transition: 0.2s;
+        }
+        .search-clear:hover {
+            color: var(--accent);
+        }
+        
         .songs-list {
             display: flex;
             flex-direction: column;
@@ -542,11 +533,6 @@
     </style>
 </head>
 <body data-theme="dark">
-    <div class="loader-wrapper">
-        <div class="loader"><div class="loader-inner"></div><div class="loader-inner"></div><div class="loader-inner"></div></div>
-        <div class="loader-text">Загрузка плееров...</div>
-    </div>
-
     <div class="content">
         <div class="theme-switcher" id="themeSwitcher">
             <div class="theme-icon active" data-theme="dark">🌙</div>
@@ -578,124 +564,508 @@
 
             <div class="charts-section">
                 <h2 class="section-title" style="margin-bottom: 1rem;">🎧 Популярные треки</h2>
+                <!-- БЛОК ПОИСКА -->
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию песни или исполнителю...">
+                    <button id="searchClearBtn" class="search-clear" title="Очистить"><i class="fas fa-times-circle"></i></button>
+                </div>
                 <div class="songs-list" id="chartSongsList">
-                    <!-- все песни остаются в DOM, пагинация управляет видимостью -->
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Юморист</span>
-                            <span class="song-artist">FACE</span>
-                        </div>
-                        <audio src="./Музыка(FACE'a)/FACE_-_YUmorist_62083353.mp3" preload="metadata"></audio>
+                    
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Юморист</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Forever Young</span>
-                            <span class="song-artist">FACE</span>
-                        </div>
-                        <audio src="./Музыка(FACE'a)/FACE_-_Forever_Young_64629973.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_YUmorist_62083353.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Forever Young</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Антидепрессант</span>
-                            <span class="song-artist">FACE</span>
-                        </div>
-                            <audio src="./Музыка(FACE'a)/Face_-_Antidepressant_48841418.mp3" preload="metadata"></audio>
-                        </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Медляк</span>
-                            <span class="song-artist">mr. Credo</span>
-                        </div>
-                        <audio src="./музыка(mr. Credo)/Mr. Credo - Медляк (hitmos.fm).mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_Forever_Young_64629973.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Антидепрессант</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Вор</span>
-                            <span class="song-artist">mr. Credo</span>
-                        </div>
-                        <audio src="./музыка(mr. Credo)/Mr. Credo - Вор (hitmos.fm).mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/Face_-_Antidepressant_48841418.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Красной помадой</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Чудная долина</span>
-                            <span class="song-artist">mr. Credo</span>
-                        </div>
-                        <audio src="./музыка(mr. Credo)/Mr. Credo - Чудная долина (hitmos.fm).mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/Face_-_Krasnojj_pomadojj_48537338.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">МОЙ КАЛАШНИКОВ</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Black_Siemens</span>
-                            <span class="song-artist">PHARAOH</span>
-                        </div>
-                        <audio src="./Музыка(PHARAOH)/PHARAOH_-_Black_Siemens_32510708.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_MOJJ_KALASHNIKOV_61744829.mp3" preload="metadata"></audio>
+                </div>
+                
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">ПОДРУГА ПОДРУГ</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Без ключа</span>
-                            <span class="song-artist">PHARAOH</span>
-                        </div>
-                        <audio src="./Музыка(PHARAOH)/PHARAOH_-_Bez_klyucha_68932769.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_PODRUGA_PODRUG_61822141.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Забирай всё что хочешь</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">На луне</span>
-                            <span class="song-artist">PHARAOH</span>
-                        </div>
-                        <audio src="./Музыка(PHARAOH)/Pharaoh_-_Na_lune_81157777.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_Zabirajj_vsjo_chto_khochesh_64742026.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">24/7</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">ЧП</span>
-                            <span class="song-artist">GUF</span>
-                        </div>
-                        <audio src="./Музыка(GUF)/Basta_GU_-_CHP_48616530.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_24_na_7_64351895.mp3" preload="metadata"></audio>
+                </div>
+                
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Бургер</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Ice Baby</span>
-                            <span class="song-artist">GUF</span>
-                        </div>
-                        <audio src="./Музыка(GUF)/GU_-_Ice_Baby_48616343.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/Face_-_Burger_49677906.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Домино</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Кто как играет</span>
-                            <span class="song-artist">GUF</span>
-                        </div>
-                        <audio src="./Музыка(GUF)/777904_a9de56bc-kto-kak-igraet.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_Domino_72897286.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">В новых адиках</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Биг Сити</span>
-                            <span class="song-artist">Whole Lotta Swag</span>
-                        </div>
-                        <audio src="./Музыка(Whole Lotta Swag)/Whole Lotta Swag - Биг Сити Лайф.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_V_novykh_adikakh_72787657.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Baby</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Разница</span>
-                            <span class="song-artist">Whole Lotta Swag</span>
-                        </div><audio src="./Музыка(Whole Lotta Swag)/Whole Lotta Swag - Разница.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/Face_-_Baby_51924949.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Гоша Рубчинский</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Страгл</span>
-                            <span class="song-artist">Whole Lotta Swag</span>
-                        </div><audio src="./Музыка(Whole Lotta Swag)/Whole Lotta Swag - Страгл.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_Gosha_Rubchinskijj_64432547.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Флоу</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">Ау</span>
-                            <span class="song-artist">10AGE Ramil</span>
-                        </div><audio src="./no censorship/10AGE_Ramil_-_Vmesto_poldnika_paru_vodnikov_74479788.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/Yanix_FACE_Markul_-_lou_64574324.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Салам</span>
+                        <span class="song-artist">FACE</span>
                     </div>
-                    <div class="song-item">
-                        <div class="song-info">
-                            <span class="song-title">SnD</span>
-                            <span class="song-artist">Jah Khalib</span>
-                        </div>
-                        <audio src="./no censorship/Jah_Khalib_-_Vsjochto_my_lyubim_seksnarkotiki_74074909.mp3" preload="metadata"></audio>
+                    <audio src="./Музыка(FACE'a)/FACE_-_SALAM_58394460.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Ты и сигареты</span>
+                        <span class="song-artist">FACE</span>
                     </div>
+                    <audio src="./Музыка(FACE'a)/Face_-_Ty_i_sigarety_48537341.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Через Шторм</span>
+                        <span class="song-artist">FACE</span>
+                    </div>
+                    <audio src="./Музыка(FACE'a)/FACE_-_CHerez_SHtorm_72897291.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">СПАСАТЕЛЬНЫЙ КРУГ</span>
+                        <span class="song-artist">FACE</span>
+                    </div>
+                    <audio src="./Музыка(FACE'a)/FACE_-_SPASATELNYJJ_KRUG_61822146.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Тысяча птиц</span>
+                        <span class="song-artist">FACE</span>
+                    </div>
+                    <audio src="./Музыка(FACE'a)/FACE_-_Tysyachi_ptic_64742034.mp3" preload="metadata"></audio>
+                </div>
+
+                    <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">ЧП</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/Basta_GU_-_CHP_48616530.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Как есть</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/Basta_GU_-_Kak_est_48616515.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Ice Baby</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/GU_-_Ice_Baby_48616343.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Три нити</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/777914_f50ae4ba-tri-niti-pri-uchastii-ant-i-blednyi.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Новости</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/777912_e595e009-novosti.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Кто как играет</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/777904_a9de56bc-kto-kak-igraet.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Only Today</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/Basta_Guf_-_Only_Today_69905930.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Надо лечится</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/GU_-_Nado_lechitsya_48616351.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Вождь</span>
+                        <span class="song-artist">GUF</span>
+                    </div>
+                    <audio src="./Музыка(GUF)/GUF_-_Vozhd_58001207.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Вор</span>
+                        <span class="song-artist">mr. Credo</span>
+                    </div>
+                    <audio src="./музыка(mr. Credo)/Mr. Credo - Вор (hitmos.fm).mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Медляк</span>
+                        <span class="song-artist">mr. Credo</span>
+                    </div>
+                    <audio src="./музыка(mr. Credo)/Mr. Credo - Медляк (hitmos.fm).mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Давай Лавэ!</span>
+                        <span class="song-artist">mr. Credo</span>
+                    </div>
+                    <audio src="./музыка(mr. Credo)/Mr. Credo - Давай Лавэ! (hitmos.fm).mp3" preload="metadata"></audio>
+                </div>
+                
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Вика-Виктория</span>
+                        <span class="song-artist">mr. Credo</span>
+                    </div>
+                    <audio src="./музыка(mr. Credo)/Mr. Credo - Вика-Виктория (hitmos.fm).mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Нувориш</span>
+                        <span class="song-artist">mr. Credo</span>
+                    </div>
+                    <audio src="./музыка(mr. Credo)/Mr. Credo - Нувориш (hitmos.fm).mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Чудная долина</span>
+                        <span class="song-artist">mr. Credo</span>
+                    </div>
+                    <audio src="./музыка(mr. Credo)/Mr. Credo - Чудная долина (hitmos.fm).mp3" preload="metadata"></audio>
+                </div>
+
+                                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Ау</span>
+                        <span class="song-artist">10AGE & Ramil</span>
+                    </div>
+                    <audio src="./no censorship/10AGE_Ramil_-_Vmesto_poldnika_paru_vodnikov_74479788.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">SnD</span>
+                        <span class="song-artist">Jah Khalib</span>
+                    </div>
+                    <audio src="./no censorship/Jah_Khalib_-_Vsjochto_my_lyubim_seksnarkotiki_74074909.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Без палева</span>
+                        <span class="song-artist">4К</span>
+                    </div>
+                    <audio src="./no censorship/4K_-_Bez_paleva_79786983.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Если чё</span>
+                        <span class="song-artist">4К</span>
+                    </div>
+                    <audio src="./no censorship/4K_-_Esli_che_69027277.mp3" preload="metadata"></audio>
+                </div>
+                
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Милиция</span>
+                        <span class="song-artist">4К</span>
+                    </div>
+                    <audio src="./no censorship/4K_-_Miliciya_79518189.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Не расклею</span>
+                        <span class="song-artist">4К</span>
+                    </div>
+                    <audio src="./no censorship/4K_-_Ne_raskleyu_79649665.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Мама я люблю кокаин</span>
+                        <span class="song-artist">Anacondaz</span>
+                    </div>
+                    <audio src="./no censorship/Anacondaz_-_Mama_ya_lyublyu_47965358.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">99_Problems</span>
+                        <span class="song-artist">Big Baby Tape, kizaru</span>
+                    </div>
+                    <audio src="./no censorship/Big_Baby_Tape_kizaru_-_99_Problems_73212020.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Bandana</span>
+                        <span class="song-artist">Big Baby Tape, kizaru</span>
+                    </div>
+                    <audio src="./no censorship/Big_Baby_Tape_kizaru_-_Bandana_73212029.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Million</span>
+                        <span class="song-artist">Big Baby Tape kizaru</span>
+                    </div><audio src="./no censorship/Big_Baby_Tape_kizaru_-_Million_73212025.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">А хули тонер</span>
+                        <span class="song-artist">ЧБ</span>
+                    </div>
+                    <audio src="./no censorship/CHB_-_A_khuli_toner_80668495.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">На похуй</span>
+                        <span class="song-artist">ЧБ</span>
+                    </div>
+                    <audio src="./no censorship/CHB_-_Na_pokhujj_79962202.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Урал рэп</span>
+                        <span class="song-artist">ЧБ</span>
+                    </div>
+                    <audio src="./no censorship/CHB_-_Uralrjep_79745951.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Not_My_Type</span>
+                        <span class="song-artist">FRIENDLY THUG 52 NGG, kizaru</span>
+                    </div>
+                    <audio src="./no censorship/FRIENDLY_THUG_52_NGG_kizaru_-_Not_My_Type_79157893.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Зеркало</span>
+                        <span class="song-artist">Kizaru</span>
+                    </div>
+                    <audio src="./no censorship/kizaru_-_Zerkalo_75988545.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Родная улица</span>
+                        <span class="song-artist">4К</span>
+                    </div>
+                    <audio src="./no censorship/4K_-_Rodnaya_ulica_77665881.mp3" preload="metadata"></audio>
+                </div>
+
+                                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">5 минут назад</span>
+                        <span class="song-artist">PHARAOH</span>
+                    </div>
+                    <audio src="./Музыка(PHARAOH)/PHARAOH_-_5_minut_nazad_48616847.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">AMG</span>
+                        <span class="song-artist">PHARAOH</span>
+                    </div>
+                    <audio src="./Музыка(PHARAOH)/Pharaoh_-_AMG_80883486.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Без ключа</span>
+                        <span class="song-artist">PHARAOH</span>
+                    </div>
+                    <audio src="./Музыка(PHARAOH)/PHARAOH_-_Bez_klyucha_68932769.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Black_Siemens</span>
+                        <span class="song-artist">PHARAOH</span>
+                    </div>
+                    <audio src="./Музыка(PHARAOH)/PHARAOH_-_Black_Siemens_32510708.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">На луне</span>
+                        <span class="song-artist">PHARAOH</span>
+                    </div>
+                    <audio src="./Музыка(PHARAOH)/Pharaoh_-_Na_lune_81157777.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Омега</span>
+                        <span class="song-artist">PHARAOH</span>
+                    </div>
+                    <audio src="./Музыка(PHARAOH)/PHARAOH_Destroy_Lonely_-_Omega_79161776.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Порнозвезда</span>
+                        <span class="song-artist">PHARAOH</span>
+                    </div>
+                    <audio src="./Музыка(PHARAOH)/PHARAOH_LSP_-_Pornozvezda_79575796.mp3" preload="metadata"></audio>
+                </div>
+
+                                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Биг Сити Лайф</span>
+                        <span class="song-artist">Whole Lotta Swag</span>
+                    </div>
+                    <audio src="./Музыка(Whole Lotta Swag)/Whole Lotta Swag - Биг Сити Лайф.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Наш разговор</span>
+                        <span class="song-artist">Whole Lotta Swag</span>
+                    </div>
+                    <audio src="./Музыка(Whole Lotta Swag)/Whole Lotta Swag - Наш разговор.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Разница</span>
+                        <span class="song-artist">Whole Lotta Swag</span>
+                    </div>
+                    <audio src="./Музыка(Whole Lotta Swag)/Whole Lotta Swag - Разница.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Страгл</span>
+                        <span class="song-artist">Whole Lotta Swag</span>
+                    </div>
+                    <audio src="./Музыка(Whole Lotta Swag)/Whole Lotta Swag - Страгл.mp3" preload="metadata"></audio>
+                </div>
+
+                <div class="song-item">
+                    <div class="song-info">
+                        <span class="song-title">Попробуй</span>
+                        <span class="song-artist">Whole Lotta Swag</span>
+                    </div>
+                    <audio src="./Музыка(Whole Lotta Swag)/Попробуи-Whole-Lotta-Swag-_youtube_.mp3" preload="metadata"></audio>
+                </div>
 
                 </div>
                 <div class="pagination-container" id="paginationContainer"></div>
@@ -733,6 +1103,69 @@
         let itemsPerPage = 5;
         let totalPages = 1;
         
+        // Поиск
+        let searchQuery = '';
+        let visibleIndices = []; // массив индексов видимых элементов после фильтра (будем обновлять при поиске)
+        
+        // ---- Сохранение глобального состояния для бесшовного перехода ----
+        function saveGlobalState() {
+            if (currentPlayingIndex !== -1 && allSongItems[currentPlayingIndex]) {
+                const audio = allSongItems[currentPlayingIndex].querySelector('audio');
+                if (audio) {
+                    const state = {
+                        src: audio.currentSrc,
+                        currentTime: audio.currentTime,
+                        isPlaying: !audio.paused
+                    };
+                    localStorage.setItem('florik_global_state', JSON.stringify(state));
+                }
+            }
+        }
+        
+        function restoreGlobalState() {
+            const saved = localStorage.getItem('florik_global_state');
+            if (!saved) return false;
+            try {
+                const state = JSON.parse(saved);
+                if (!state.src) return false;
+                let targetAudio = null;
+                let targetIndex = -1;
+                for (let i = 0; i < allSongItems.length; i++) {
+                    const audio = allSongItems[i].querySelector('audio');
+                    if (audio && audio.currentSrc === state.src) {
+                        targetAudio = audio;
+                        targetIndex = i;
+                        break;
+                    }
+                }
+                if (targetAudio && targetIndex !== -1) {
+                    targetAudio.currentTime = state.currentTime;
+                    currentPlayingIndex = targetIndex;
+                    updateGlobalTrackInfo(currentPlayingIndex);
+                    syncPageWithTrack(currentPlayingIndex);
+                    if (state.isPlaying) {
+                        targetAudio.play().then(() => {
+                            const playerData = allPlayers.find(p => p.audio === targetAudio);
+                            if (playerData && playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                            updateGlobalPlayPauseIcon();
+                        }).catch(e => {
+                            console.log("Autoplay blocked", e);
+                            showFloatingMessage("Нажмите Play, чтобы продолжить");
+                            const playerData = allPlayers.find(p => p.audio === targetAudio);
+                            if (playerData && playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                            updateGlobalPlayPauseIcon();
+                        });
+                    } else {
+                        const playerData = allPlayers.find(p => p.audio === targetAudio);
+                        if (playerData && playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        updateGlobalPlayPauseIcon();
+                    }
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        }
+        
         // ---- Работа с хешем #page=N ----
         function getPageFromHash() {
             const match = window.location.hash.match(/^#page=(\d+)$/);
@@ -750,14 +1183,41 @@
             }
         }
         
-        // ---- Основные функции пагинации с хешем ----
+        // ---- Функции фильтрации и пагинации с учётом видимости ----
+        function updateVisibleIndices() {
+            if (!searchQuery.trim()) {
+                visibleIndices = allSongItems.map((_, idx) => idx);
+            } else {
+                const lowerQuery = searchQuery.toLowerCase();
+                visibleIndices = [];
+                allSongItems.forEach((item, idx) => {
+                    const title = item.querySelector('.song-title')?.innerText.toLowerCase() || '';
+                    const artist = item.querySelector('.song-artist')?.innerText.toLowerCase() || '';
+                    if (title.includes(lowerQuery) || artist.includes(lowerQuery)) {
+                        visibleIndices.push(idx);
+                    }
+                });
+            }
+            // Обновить totalPages
+            totalPages = Math.ceil(visibleIndices.length / itemsPerPage);
+            if (totalPages < 1) totalPages = 1;
+            // Сбросить текущую страницу на 1, если текущая страница больше totalPages
+            if (currentPage > totalPages) currentPage = 1;
+        }
+        
         function renderPage(page) {
             if (!allSongItems.length) return;
+            // Сначала скрыть все элементы
+            allSongItems.forEach(item => { item.style.display = 'none'; });
+            // Показать только те, что входят в visibleIndices и на нужной странице
             const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            allSongItems.forEach((item, idx) => {
-                item.style.display = (idx >= start && idx < end) ? '' : 'none';
-            });
+            const end = Math.min(start + itemsPerPage, visibleIndices.length);
+            for (let i = start; i < end; i++) {
+                const idx = visibleIndices[i];
+                if (idx !== undefined) {
+                    allSongItems[idx].style.display = '';
+                }
+            }
             updatePaginationUI(page);
         }
         
@@ -809,22 +1269,50 @@
             currentPage = page;
             renderPage(currentPage);
             updateHashFromPage(currentPage);
+            saveGlobalState();
         }
         
         function syncPageWithTrack(index) {
-            if (index === -1 || !allSongItems.length) return;
-            const targetPage = Math.floor(index / itemsPerPage) + 1;
+            // Находим позицию трека в visibleIndices
+            const pos = visibleIndices.indexOf(index);
+            if (pos === -1) return;
+            const targetPage = Math.floor(pos / itemsPerPage) + 1;
             if (targetPage !== currentPage) {
                 goToPage(targetPage);
             }
         }
         
+        // Фильтрация по поиску
+        function applySearch() {
+            updateVisibleIndices();
+            currentPage = 1;
+            renderPage(currentPage);
+            updateHashFromPage(currentPage);
+            // Проверить, что текущий играющий трек всё ещё виден. Если нет — остановить и сбросить.
+            if (currentPlayingIndex !== -1 && visibleIndices.indexOf(currentPlayingIndex) === -1) {
+                // Остановить воспроизведение
+                const currentAudio = allSongItems[currentPlayingIndex]?.querySelector('audio');
+                if (currentAudio) {
+                    currentAudio.pause();
+                    const playerData = allPlayers.find(p => p.audio === currentAudio);
+                    if (playerData && playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+                currentPlayingIndex = -1;
+                updateGlobalTrackInfo(-1);
+                updateGlobalPlayPauseIcon();
+                saveGlobalState();
+                showFloatingMessage("Текущий трек скрыт поиском");
+            }
+        }
+        
+        // ---- Вспомогательные функции ----
         function formatTime(seconds) {
             if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
+        
         function showFloatingMessage(message) {
             let toast = document.querySelector('.floating-toast');
             if (!toast) {
@@ -878,7 +1366,11 @@
             if (!allSongItems.length) return;
             if (index < 0) index = 0;
             if (index >= allSongItems.length) index = 0;
-            
+            // Проверяем, видим ли трек
+            if (visibleIndices.indexOf(index) === -1) {
+                showFloatingMessage("Этот трек не отображается в результатах поиска");
+                return;
+            }
             const targetSong = allSongItems[index];
             const targetAudio = targetSong.querySelector('audio');
             if (!targetAudio) { showFloatingMessage("Аудио недоступно"); return; }
@@ -894,23 +1386,43 @@
             updateGlobalTrackInfo(index);
             updateGlobalPlayPauseIcon();
             syncPageWithTrack(index);
+            saveGlobalState();
         }
         
         function playNextTrack() {
             if (!allSongItems.length) return;
-            let nextIndex = (currentPlayingIndex + 1) % allSongItems.length;
-            enhancedPlayTrackByIndex(nextIndex, true);
+            if (currentPlayingIndex === -1) {
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            const currentPosInVisible = visibleIndices.indexOf(currentPlayingIndex);
+            if (currentPosInVisible === -1) {
+                // текущий трек не видим, берём первый видимый
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            let nextPos = (currentPosInVisible + 1) % visibleIndices.length;
+            enhancedPlayTrackByIndex(visibleIndices[nextPos], true);
         }
         
         function playPrevTrack() {
             if (!allSongItems.length) return;
-            let prevIndex = (currentPlayingIndex - 1 + allSongItems.length) % allSongItems.length;
-            enhancedPlayTrackByIndex(prevIndex, true);
+            if (currentPlayingIndex === -1) {
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            const currentPosInVisible = visibleIndices.indexOf(currentPlayingIndex);
+            if (currentPosInVisible === -1) {
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            let prevPos = (currentPosInVisible - 1 + visibleIndices.length) % visibleIndices.length;
+            enhancedPlayTrackByIndex(visibleIndices[prevPos], true);
         }
         
         function toggleGlobalPlayPause() {
             if (currentPlayingIndex === -1) {
-                if (allSongItems.length) enhancedPlayTrackByIndex(0, true);
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
                 return;
             }
             const currentAudio = allSongItems[currentPlayingIndex]?.querySelector('audio');
@@ -925,9 +1437,10 @@
                 if (playerData?.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
             updateGlobalPlayPauseIcon();
+            saveGlobalState();
         }
         
-        // Кастомный плеер для каждого трека
+        // Кастомный плеер для каждого трека (без изменений)
         function buildCustomPlayer(songItem, audioElement) {
             if (songItem.querySelector('.custom-audio-controls')) return;
             audioElement.removeAttribute('controls');
@@ -976,6 +1489,7 @@
             seekSlider.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
                 if (!isNaN(val) && isFinite(val)) audioElement.currentTime = val;
+                saveGlobalState();
             });
             playPauseBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -994,6 +1508,7 @@
                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 }
                 updateGlobalPlayPauseIcon();
+                saveGlobalState();
             });
             audioElement.addEventListener('play', () => {
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -1004,10 +1519,12 @@
                     syncPageWithTrack(idx);
                 }
                 updateGlobalPlayPauseIcon();
+                saveGlobalState();
             });
             audioElement.addEventListener('pause', () => {
                 playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 updateGlobalPlayPauseIcon();
+                saveGlobalState();
             });
             audioElement.addEventListener('error', () => {
                 showFloatingMessage(`❌ Ошибка трека`);
@@ -1026,20 +1543,18 @@
                 const audio = item.querySelector('audio');
                 if (audio && !item.querySelector('.custom-audio-controls')) buildCustomPlayer(item, audio);
             });
-            totalPages = Math.ceil(allSongItems.length / itemsPerPage);
-            if (totalPages < 1) totalPages = 1;
-            
-            // Чтение хеша и установка начальной страницы
+            // Инициализация видимости и пагинации
+            updateVisibleIndices();
             let initialPage = getPageFromHash();
             if (initialPage < 1) initialPage = 1;
             if (initialPage > totalPages) initialPage = totalPages;
             currentPage = initialPage;
             renderPage(currentPage);
-            // Если хеш не соответствует текущей странице, обновим его (синхронизация)
             if (window.location.hash !== `#page=${currentPage}`) {
                 updateHashFromPage(currentPage);
             }
             
+            restoreGlobalState();
             attachSongItemClick();
         }
         
@@ -1072,6 +1587,7 @@
                 if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
             updateGlobalPlayPauseIcon();
+            saveGlobalState();
         }
         
         function initGlobalControls() {
@@ -1135,7 +1651,6 @@
             });
         }
         
-        // Обработка изменения хеша вручную (кнопки назад/вперед)
         function onHashChange() {
             const pageFromHash = getPageFromHash();
             if (pageFromHash !== currentPage && pageFromHash >= 1 && pageFromHash <= totalPages) {
@@ -1144,23 +1659,41 @@
             }
         }
         
+        // Инициализация поиска
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('searchClearBtn');
+            if (!searchInput) return;
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                applySearch();
+            });
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchQuery = '';
+                    applySearch();
+                    searchInput.focus();
+                });
+            }
+        }
+        
+        // Главная инициализация
         document.addEventListener('DOMContentLoaded', () => {
             renderArtists();
-            initAllSongs();   // внутри инициализирует пагинацию с учётом хеша
+            initAllSongs();
             initGlobalControls();
             initTheme();
+            initSearch();
             const yearSpan = document.getElementById('currentYear');
             if (yearSpan) yearSpan.innerText = new Date().getFullYear();
             
             window.addEventListener('hashchange', onHashChange);
+            window.addEventListener('beforeunload', () => saveGlobalState());
             
-            setTimeout(() => {
-                document.body.classList.add('loaded');
-                setTimeout(() => {
-                    const loader = document.querySelector('.loader-wrapper');
-                    if (loader) loader.remove();
-                }, 800);
-            }, 1000);
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => saveGlobalState());
+            });
         });
         
         // MediaSession API
@@ -1185,7 +1718,7 @@
             observer();
         })();
         
-        // Защита от инструментов разработчика (базовая)
+        // Защита от инструментов разработчика
         (function() {
             document.addEventListener('contextmenu', e => e.preventDefault());
             document.addEventListener('keydown', e => {

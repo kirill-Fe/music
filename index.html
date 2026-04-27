@@ -498,6 +498,85 @@
             border-radius: 40px;
             margin-left: 8px;
         }
+
+        .birthday-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .birthday-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .birthday-modal {
+            background: var(--card-bg);
+            border-radius: 32px;
+            max-width: 420px;
+            width: 90%;
+            padding: 2rem 1.8rem;
+            text-align: center;
+            border: 1px solid var(--primary);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .birthday-modal-overlay.active .birthday-modal {
+            transform: scale(1);
+        }
+        .birthday-modal h2 {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        .birthday-modal p {
+            font-size: 1.2rem;
+            margin-bottom: 1.8rem;
+            color: var(--text);
+        }
+        .birthday-modal .telegram-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #27a7e7;
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+        .birthday-modal .telegram-link:hover {
+            background: #1c8bc2;
+            transform: translateY(-3px);
+        }
+        .birthday-modal .close-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .birthday-modal .close-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
         
         @media (max-width: 620px) {
             .global-player { justify-content: center; gap: 10px; padding: 8px 12px; }
@@ -703,7 +782,7 @@
         </div>
 
         <footer>
-            <p>© <span id="currentYear"></span> <a href="https://kirill-fe.github.io/projects/">Florik-projects</a> | <a href="https://t.me/Kirill_Florik">Kirill_Florik</a></p>
+            <p>© <span id="currentYear"></span> разработанно <a href="https://kirill-fe.github.io/projects/">Florik-projects</a> | <a href="https://t.me/Kirill_Florik">Kirill_Florik</a></p>
         </footer>
     </div>
 
@@ -1194,6 +1273,46 @@
             document.addEventListener('selectstart', e => e.preventDefault());
             document.addEventListener('copy', e => e.preventDefault());
         })();
+        // Модальное окно дня рождения Кирилла (28 апреля)
+function showBirthdayModalForKirill() {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+    const storageKey = 'birthday_shown_kirill_music';
+    if (localStorage.getItem(storageKey) === todayStr) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'birthday-modal-overlay';
+    overlay.innerHTML = `
+        <div class="birthday-modal">
+            <h2>🎉 С Днём Рождения! 🎉</h2>
+            <p>Сегодня 28 апреля — день рождения Кирилла!<br>Не забудь поздравить его</p>
+            <a href="https://t.me/Kirill_Florik?text=привет+С+днём+рождения,+желаю+счастья+и+успехов" class="telegram-link" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-telegram"></i> Поздравить в Telegram
+            </a>
+            <br>
+            <button class="close-btn">Закрыть</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.classList.add('active'), 10);
+    
+    const closeBtn = overlay.querySelector('.close-btn');
+    const closeModal = () => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 300);
+    };
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+    });
+    localStorage.setItem(storageKey, todayStr);
+}
+
+// Проверка: сегодня 28 апреля?
+const now = new Date();
+if (now.getMonth() === 3 && now.getDate() === 28) {
+    showBirthdayModalForKirill();
+}
     </script>
 </body>
 </html>

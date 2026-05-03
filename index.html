@@ -124,8 +124,32 @@
             position: relative;
             z-index: 1;
         }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; animation: fadeIn 1s ease; }
-        .tagline { font-size: 1.2rem; opacity: 0.9; margin-bottom: 1.5rem; animation: fadeIn 1s 0.3s ease both; color: var(--secondary); }
+        h1 { font-size: 2.5rem; 
+            margin-bottom: 0.5rem; 
+            animation: fadeIn 1s ease; 
+        }
+
+        .tagline { 
+            font-size: 1.2rem; 
+            opacity: 0.9; 
+            margin-bottom: 1.5rem; 
+            animation: fadeIn 1s 0.3s ease both; 
+            color: var(--secondary); 
+        }
+        .tagline a {
+            font-size: 1.2rem; 
+            opacity: 0.9; 
+            margin-bottom: 1.5rem; 
+            animation: fadeIn 1s 0.3s ease both; 
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .tagline a:hover {
+            color: rgba(138,99,242,0.12);;
+            
+        }
         .social-links {
             display: flex;
             justify-content: center;
@@ -247,6 +271,46 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.05);
         }
+        /* Стили поиска */
+        .search-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: rgba(128,128,128,0.1);
+            border-radius: 60px;
+            padding: 0.3rem 1rem;
+            border: 1px solid rgba(138,99,242,0.3);
+        }
+        .search-container i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.7rem 0;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+        .search-clear {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 0.3rem;
+            transition: 0.2s;
+        }
+        .search-clear:hover {
+            color: var(--accent);
+        }
+        
         .songs-list {
             display: flex;
             flex-direction: column;
@@ -264,6 +328,7 @@
         }
         .song-item:hover {
             background: rgba(138,99,242,0.12);
+
         }
         .song-info {
             display: flex;
@@ -486,10 +551,6 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-        .page-arrow {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
         .pagination-info {
             color: var(--text-secondary);
             font-size: 0.85rem;
@@ -499,83 +560,11 @@
             margin-left: 8px;
         }
 
-        .birthday-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        .birthday-modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .birthday-modal {
-            background: var(--card-bg);
-            border-radius: 32px;
-            max-width: 420px;
-            width: 90%;
-            padding: 2rem 1.8rem;
-            text-align: center;
-            border: 1px solid var(--primary);
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-        .birthday-modal-overlay.active .birthday-modal {
-            transform: scale(1);
-        }
-        .birthday-modal h2 {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--secondary);
-        }
-        .birthday-modal p {
-            font-size: 1.2rem;
-            margin-bottom: 1.8rem;
-            color: var(--text);
-        }
-        .birthday-modal .telegram-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #27a7e7;
-            color: white;
-            padding: 0.8rem 1.8rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.2s;
-            margin-bottom: 1rem;
-        }
-        .birthday-modal .telegram-link:hover {
-            background: #1c8bc2;
-            transform: translateY(-3px);
-        }
-        .birthday-modal .close-btn {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 0.5rem 1.5rem;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-        .birthday-modal .close-btn:hover {
-            background: var(--primary);
-            color: white;
+        /* играющий трек */
+        .song-item.playing {
+            background: rgba(138, 99, 242, 0.25);
+            border-left: 4px solid var(--secondary);
+            box-shadow: 0 0 8px rgba(138, 99, 242, 0.3);
         }
         
         @media (max-width: 620px) {
@@ -595,10 +584,25 @@
             margin-top: 3rem;
             border-top: 1px solid rgba(255,255,255,0.05);
         }
-        footer a { color: var(--primary); text-decoration: none; }
+        footer a { 
+            color: var(--primary); 
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+
+            from { opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { opacity: 1; 
+                transform: translateY(0); 
+            }
+            
+        }
+
+        footer a:hover {
+            color: var(--secondary);
+
         }
         .floating-toast {
             position: fixed;
@@ -621,8 +625,13 @@
     </style>
 </head>
 <body data-theme="dark">
+    <!-- Анимация загрузки -->
     <div class="loader-wrapper">
-        <div class="loader"><div class="loader-inner"></div><div class="loader-inner"></div><div class="loader-inner"></div></div>
+        <div class="loader">
+            <div class="loader-inner"></div>
+            <div class="loader-inner"></div>
+            <div class="loader-inner"></div>
+        </div>
         <div class="loader-text">Загрузка плееров...</div>
     </div>
 
@@ -636,6 +645,7 @@
             <div class="header-content">
                 <h1>Florik - Музыка | бета версия</h1>
                 <p class="tagline">Популярные песни без цензуры</p>
+                <p class="tagline">перейдите на версию <a href="./idx.html">idx</a> там больше песен на главном экране</p>
                 <div class="social-links">
                     <a href="https://t.me/+tICn0-HA9ng4NGUy" class="TGK"><img src="https://github.com/kirill-Fe/projects/blob/main/IMG/KF.png?raw=true" alt="TGK" style="width: 100%; border-radius: 100px;"></a>
                     <a href="https://vk.com/Kirill_Florik" class="VK"><i class="fab fa-vk"></i></a>
@@ -657,9 +667,16 @@
 
             <div class="charts-section">
                 <h2 class="section-title" style="margin-bottom: 1rem;">🎧 Популярные треки</h2>
+                
+                <!-- БЛОК ПОИСКА -->
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию песни или исполнителю...">
+                    <button id="searchClearBtn" class="search-clear" title="Очистить"><i class="fas fa-times-circle"></i></button>
+                </div>
+                
                 <div class="songs-list" id="chartSongsList">
-                    <!-- все песни остаются в DOM, пагинация управляет видимостью -->
-                    <div class="song-item">
+                                        <div class="song-item">
                         <div class="song-info">
                             <span class="song-title">Юморист</span>
                             <span class="song-artist">FACE</span>
@@ -782,7 +799,7 @@
         </div>
 
         <footer>
-            <p>© <span id="currentYear"></span> разработанно <a href="https://kirill-fe.github.io/projects/">Florik-projects</a> | <a href="https://t.me/Kirill_Florik">Kirill_Florik</a></p>
+            <p>© <span id="currentYear"></span> <a href="https://kirill-fe.github.io/projects/">Florik-projects</a> | <a href="https://t.me/Kirill_Florik">Kirill_Florik</a></p>
         </footer>
     </div>
 
@@ -812,6 +829,70 @@
         let itemsPerPage = 5;
         let totalPages = 1;
         
+        // Поиск
+        let searchQuery = '';
+        let visibleIndices = []; // массив индексов видимых элементов после фильтра
+        
+        // ---- Сохранение глобального состояния для бесшовного перехода ----
+        function saveGlobalState() {
+            if (currentPlayingIndex !== -1 && allSongItems[currentPlayingIndex]) {
+                const audio = allSongItems[currentPlayingIndex].querySelector('audio');
+                if (audio) {
+                    const state = {
+                        src: audio.currentSrc,
+                        currentTime: audio.currentTime,
+                        isPlaying: !audio.paused
+                    };
+                    localStorage.setItem('florik_global_state', JSON.stringify(state));
+                }
+            }
+        }
+        
+        function restoreGlobalState() {
+            const saved = localStorage.getItem('florik_global_state');
+            if (!saved) return false;
+            try {
+                const state = JSON.parse(saved);
+                if (!state.src) return false;
+                let targetAudio = null;
+                let targetIndex = -1;
+                for (let i = 0; i < allSongItems.length; i++) {
+                    const audio = allSongItems[i].querySelector('audio');
+                    if (audio && audio.currentSrc === state.src) {
+                        targetAudio = audio;
+                        targetIndex = i;
+                        break;
+                    }
+                }
+                if (targetAudio && targetIndex !== -1) {
+                    targetAudio.currentTime = state.currentTime;
+                    currentPlayingIndex = targetIndex;
+                    updateGlobalTrackInfo(currentPlayingIndex);
+                    syncPageWithTrack(currentPlayingIndex);
+                    setActiveTrackHighlight(currentPlayingIndex);
+                    if (state.isPlaying) {
+                        targetAudio.play().then(() => {
+                            const playerData = allPlayers.find(p => p.audio === targetAudio);
+                            if (playerData && playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                            updateGlobalPlayPauseIcon();
+                        }).catch(e => {
+                            console.log("Autoplay blocked", e);
+                            showFloatingMessage("Нажмите Play, чтобы продолжить");
+                            const playerData = allPlayers.find(p => p.audio === targetAudio);
+                            if (playerData && playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                            updateGlobalPlayPauseIcon();
+                        });
+                    } else {
+                        const playerData = allPlayers.find(p => p.audio === targetAudio);
+                        if (playerData && playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        updateGlobalPlayPauseIcon();
+                    }
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        }
+        
         // ---- Работа с хешем #page=N ----
         function getPageFromHash() {
             const match = window.location.hash.match(/^#page=(\d+)$/);
@@ -829,14 +910,35 @@
             }
         }
         
-        // ---- Основные функции пагинации с хешем ----
+        // ---- Функции фильтрации и пагинации с учётом видимости ----
+        function updateVisibleIndices() {
+            if (!searchQuery.trim()) {
+                visibleIndices = allSongItems.map((_, idx) => idx);
+            } else {
+                const lowerQuery = searchQuery.toLowerCase();
+                visibleIndices = [];
+                allSongItems.forEach((item, idx) => {
+                    const title = item.querySelector('.song-title')?.innerText.toLowerCase() || '';
+                    const artist = item.querySelector('.song-artist')?.innerText.toLowerCase() || '';
+                    if (title.includes(lowerQuery) || artist.includes(lowerQuery)) {
+                        visibleIndices.push(idx);
+                    }
+                });
+            }
+            totalPages = Math.ceil(visibleIndices.length / itemsPerPage);
+            if (totalPages < 1) totalPages = 1;
+            if (currentPage > totalPages) currentPage = 1;
+        }
+        
         function renderPage(page) {
             if (!allSongItems.length) return;
+            allSongItems.forEach(item => { item.style.display = 'none'; });
             const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            allSongItems.forEach((item, idx) => {
-                item.style.display = (idx >= start && idx < end) ? '' : 'none';
-            });
+            const end = Math.min(start + itemsPerPage, visibleIndices.length);
+            for (let i = start; i < end; i++) {
+                const idx = visibleIndices[i];
+                if (idx !== undefined) allSongItems[idx].style.display = '';
+            }
             updatePaginationUI(page);
         }
         
@@ -888,22 +990,45 @@
             currentPage = page;
             renderPage(currentPage);
             updateHashFromPage(currentPage);
+            saveGlobalState();
         }
         
         function syncPageWithTrack(index) {
-            if (index === -1 || !allSongItems.length) return;
-            const targetPage = Math.floor(index / itemsPerPage) + 1;
-            if (targetPage !== currentPage) {
-                goToPage(targetPage);
+            const pos = visibleIndices.indexOf(index);
+            if (pos === -1) return;
+            const targetPage = Math.floor(pos / itemsPerPage) + 1;
+            if (targetPage !== currentPage) goToPage(targetPage);
+        }
+        
+        function applySearch() {
+            updateVisibleIndices();
+            currentPage = 1;
+            renderPage(currentPage);
+            updateHashFromPage(currentPage);
+            if (currentPlayingIndex !== -1 && visibleIndices.indexOf(currentPlayingIndex) === -1) {
+                const currentAudio = allSongItems[currentPlayingIndex]?.querySelector('audio');
+                if (currentAudio) {
+                    currentAudio.pause();
+                    const playerData = allPlayers.find(p => p.audio === currentAudio);
+                    if (playerData?.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+                currentPlayingIndex = -1;
+                updateGlobalTrackInfo(-1);
+                updateGlobalPlayPauseIcon();
+                setActiveTrackHighlight(-1);
+                saveGlobalState();
+                showFloatingMessage("Текущий трек скрыт поиском");
             }
         }
         
+        // ---- Вспомогательные функции ----
         function formatTime(seconds) {
             if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
+        
         function showFloatingMessage(message) {
             let toast = document.querySelector('.floating-toast');
             if (!toast) {
@@ -953,11 +1078,19 @@
             if (artistSpan && globalTrackArtistSpan) globalTrackArtistSpan.textContent = artistSpan.innerText;
         }
         
+        function setActiveTrackHighlight(index) {
+            allSongItems.forEach(item => item.classList.remove('playing'));
+            if (index !== -1 && allSongItems[index]) allSongItems[index].classList.add('playing');
+        }
+        
         function enhancedPlayTrackByIndex(index, autoPlay = true) {
             if (!allSongItems.length) return;
             if (index < 0) index = 0;
             if (index >= allSongItems.length) index = 0;
-            
+            if (visibleIndices.indexOf(index) === -1) {
+                showFloatingMessage("Этот трек не отображается в результатах поиска");
+                return;
+            }
             const targetSong = allSongItems[index];
             const targetAudio = targetSong.querySelector('audio');
             if (!targetAudio) { showFloatingMessage("Аудио недоступно"); return; }
@@ -968,28 +1101,48 @@
             if (targetAudio.paused && autoPlay) {
                 targetAudio.play().catch(err => { console.warn(err); showFloatingMessage("Ошибка воспроизведения"); });
             }
-            if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = autoPlay ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
             currentPlayingIndex = index;
             updateGlobalTrackInfo(index);
             updateGlobalPlayPauseIcon();
             syncPageWithTrack(index);
+            setActiveTrackHighlight(index);
+            saveGlobalState();
         }
         
         function playNextTrack() {
             if (!allSongItems.length) return;
-            let nextIndex = (currentPlayingIndex + 1) % allSongItems.length;
-            enhancedPlayTrackByIndex(nextIndex, true);
+            if (currentPlayingIndex === -1) {
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            const currentPos = visibleIndices.indexOf(currentPlayingIndex);
+            if (currentPos === -1) {
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            let nextPos = (currentPos + 1) % visibleIndices.length;
+            enhancedPlayTrackByIndex(visibleIndices[nextPos], true);
         }
         
         function playPrevTrack() {
             if (!allSongItems.length) return;
-            let prevIndex = (currentPlayingIndex - 1 + allSongItems.length) % allSongItems.length;
-            enhancedPlayTrackByIndex(prevIndex, true);
+            if (currentPlayingIndex === -1) {
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            const currentPos = visibleIndices.indexOf(currentPlayingIndex);
+            if (currentPos === -1) {
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
+                return;
+            }
+            let prevPos = (currentPos - 1 + visibleIndices.length) % visibleIndices.length;
+            enhancedPlayTrackByIndex(visibleIndices[prevPos], true);
         }
         
         function toggleGlobalPlayPause() {
             if (currentPlayingIndex === -1) {
-                if (allSongItems.length) enhancedPlayTrackByIndex(0, true);
+                if (visibleIndices.length) enhancedPlayTrackByIndex(visibleIndices[0], true);
                 return;
             }
             const currentAudio = allSongItems[currentPlayingIndex]?.querySelector('audio');
@@ -1004,6 +1157,7 @@
                 if (playerData?.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
             updateGlobalPlayPauseIcon();
+            saveGlobalState();
         }
         
         // Кастомный плеер для каждого трека
@@ -1055,6 +1209,7 @@
             seekSlider.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
                 if (!isNaN(val) && isFinite(val)) audioElement.currentTime = val;
+                saveGlobalState();
             });
             playPauseBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1067,12 +1222,14 @@
                         currentPlayingIndex = idx;
                         updateGlobalTrackInfo(idx);
                         syncPageWithTrack(idx);
+                        setActiveTrackHighlight(idx);
                     }
                 } else {
                     audioElement.pause();
                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 }
                 updateGlobalPlayPauseIcon();
+                saveGlobalState();
             });
             audioElement.addEventListener('play', () => {
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -1081,12 +1238,15 @@
                     currentPlayingIndex = idx;
                     updateGlobalTrackInfo(idx);
                     syncPageWithTrack(idx);
+                    setActiveTrackHighlight(idx);
                 }
                 updateGlobalPlayPauseIcon();
+                saveGlobalState();
             });
             audioElement.addEventListener('pause', () => {
                 playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 updateGlobalPlayPauseIcon();
+                saveGlobalState();
             });
             audioElement.addEventListener('error', () => {
                 showFloatingMessage(`❌ Ошибка трека`);
@@ -1105,20 +1265,14 @@
                 const audio = item.querySelector('audio');
                 if (audio && !item.querySelector('.custom-audio-controls')) buildCustomPlayer(item, audio);
             });
-            totalPages = Math.ceil(allSongItems.length / itemsPerPage);
-            if (totalPages < 1) totalPages = 1;
-            
-            // Чтение хеша и установка начальной страницы
+            updateVisibleIndices();
             let initialPage = getPageFromHash();
             if (initialPage < 1) initialPage = 1;
             if (initialPage > totalPages) initialPage = totalPages;
             currentPage = initialPage;
             renderPage(currentPage);
-            // Если хеш не соответствует текущей странице, обновим его (синхронизация)
-            if (window.location.hash !== `#page=${currentPage}`) {
-                updateHashFromPage(currentPage);
-            }
-            
+            if (window.location.hash !== `#page=${currentPage}`) updateHashFromPage(currentPage);
+            restoreGlobalState();
             attachSongItemClick();
         }
         
@@ -1145,12 +1299,14 @@
                     currentPlayingIndex = idx;
                     updateGlobalTrackInfo(idx);
                     syncPageWithTrack(idx);
+                    setActiveTrackHighlight(idx);
                 }
             } else {
                 audio.pause();
                 if (playerData.playPauseBtn) playerData.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             }
             updateGlobalPlayPauseIcon();
+            saveGlobalState();
         }
         
         function initGlobalControls() {
@@ -1218,7 +1374,6 @@
             });
         }
         
-        // Обработка изменения хеша вручную (кнопки назад/вперед)
         function onHashChange() {
             const pageFromHash = getPageFromHash();
             if (pageFromHash !== currentPage && pageFromHash >= 1 && pageFromHash <= totalPages) {
@@ -1227,16 +1382,40 @@
             }
         }
         
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('searchClearBtn');
+            if (!searchInput) return;
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                applySearch();
+            });
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchQuery = '';
+                    applySearch();
+                    searchInput.focus();
+                });
+            }
+        }
+        
+        // Главная инициализация с загрузчиком
         document.addEventListener('DOMContentLoaded', () => {
             renderArtists();
-            initAllSongs();   // внутри инициализирует пагинацию с учётом хеша
+            initAllSongs();
             initGlobalControls();
             initTheme();
+            initSearch();
             const yearSpan = document.getElementById('currentYear');
             if (yearSpan) yearSpan.innerText = new Date().getFullYear();
             
             window.addEventListener('hashchange', onHashChange);
+            window.addEventListener('beforeunload', () => saveGlobalState());
             
+            document.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => saveGlobalState()); });
+            
+            // Скрыть загрузчик после полной загрузки
             setTimeout(() => {
                 document.body.classList.add('loaded');
                 setTimeout(() => {
@@ -1268,7 +1447,7 @@
             observer();
         })();
         
-        // Защита от инструментов разработчика (базовая)
+        // Защита от инструментов разработчика
         (function() {
             document.addEventListener('contextmenu', e => e.preventDefault());
             document.addEventListener('keydown', e => {
@@ -1277,46 +1456,46 @@
             document.addEventListener('selectstart', e => e.preventDefault());
             document.addEventListener('copy', e => e.preventDefault());
         })();
+        
         // Модальное окно дня рождения Кирилла (28 апреля)
-function showBirthdayModalForKirill() {
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
-    const storageKey = 'birthday_shown_kirill_music';
-    if (localStorage.getItem(storageKey) === todayStr) return;
+        function showBirthdayModalForKirill() {
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+            const storageKey = 'birthday_shown_kirill_music';
+            if (localStorage.getItem(storageKey) === todayStr) return;
 
-    const overlay = document.createElement('div');
-    overlay.className = 'birthday-modal-overlay';
-    overlay.innerHTML = `
-        <div class="birthday-modal">
-            <h2>🎉 С Днём Рождения! 🎉</h2>
-            <p>Сегодня 28 апреля — день рождения Кирилла!<br>Не забудь поздравить его</p>
-            <a href="https://t.me/Kirill_Florik?text=привет+С+днём+рождения,+желаю+счастья+и+успехов" class="telegram-link" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-telegram"></i> Поздравить в Telegram
-            </a>
-            <br>
-            <button class="close-btn">Закрыть</button>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-    setTimeout(() => overlay.classList.add('active'), 10);
-    
-    const closeBtn = overlay.querySelector('.close-btn');
-    const closeModal = () => {
-        overlay.classList.remove('active');
-        setTimeout(() => overlay.remove(), 300);
-    };
-    closeBtn.addEventListener('click', closeModal);
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeModal();
-    });
-    localStorage.setItem(storageKey, todayStr);
-}
+            const overlay = document.createElement('div');
+            overlay.className = 'birthday-modal-overlay';
+            overlay.innerHTML = `
+                <div class="birthday-modal">
+                    <h2>🎉 С Днём Рождения! 🎉</h2>
+                    <p>Сегодня 28 апреля — день рождения Кирилла!<br>Не забудь поздравить его</p>
+                    <a href="https://t.me/Kirill_Florik?text=привет+С+днём+рождения,+желаю+счастья+и+успехов" class="telegram-link" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-telegram"></i> Поздравить в Telegram
+                    </a>
+                    <br>
+                    <button class="close-btn">Закрыть</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            setTimeout(() => overlay.classList.add('active'), 10);
+            
+            const closeBtn = overlay.querySelector('.close-btn');
+            const closeModal = () => {
+                overlay.classList.remove('active');
+                setTimeout(() => overlay.remove(), 300);
+            };
+            closeBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModal();
+            });
+            localStorage.setItem(storageKey, todayStr);
+        }
 
-// Проверка: сегодня 28 апреля?
-const now = new Date();
-if (now.getMonth() === 3 && now.getDate() === 28) {
-    showBirthdayModalForKirill();
-}
+        const now = new Date();
+        if (now.getMonth() === 3 && now.getDate() === 28) {
+            showBirthdayModalForKirill();
+        }
     </script>
 </body>
 </html>

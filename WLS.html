@@ -384,6 +384,13 @@
             border-radius: 40px;
             margin-left: 8px;
         }
+
+        .song-item.playing {
+            background: rgba(138, 99, 242, 0.25);
+            border-left: 4px solid var(--secondary);
+            box-shadow: 0 0 8px rgba(138, 99, 242, 0.3);
+        }
+
         @media (max-width: 620px) {
             body { padding: 1rem; padding-bottom: 90px; }
             .container { padding: 1.2rem; }
@@ -530,6 +537,16 @@
         // Флаги для хеша
         let _updatingHash = false;
         
+        // ---- Подсветка активного трека ----
+        function setActiveTrackHighlight(index) {
+            allSongItems.forEach(item => {
+                item.classList.remove('playing');
+            });
+            if (index !== -1 && allSongItems[index]) {
+                allSongItems[index].classList.add('playing');
+            }
+        }
+        
         // ---- Сохранение глобального состояния для бесшовного перехода ----
         function saveGlobalState() {
             if (currentPlayingIndex !== -1 && allSongItems[currentPlayingIndex]) {
@@ -566,6 +583,7 @@
                     currentPlayingIndex = targetIndex;
                     updateGlobalTrackInfo(currentPlayingIndex);
                     syncPageWithTrack(currentPlayingIndex);
+                    setActiveTrackHighlight(currentPlayingIndex);
                     if (state.isPlaying) {
                         targetAudio.play().then(() => {
                             const playerData = allPlayers.find(p => p.audio === targetAudio);
@@ -785,6 +803,7 @@
             updateGlobalTrackInfo(index);
             updateGlobalPlayPauseIcon();
             syncPageWithTrack(index);
+            setActiveTrackHighlight(index);
             saveGlobalState();
         }
         
@@ -882,6 +901,7 @@
                         currentPlayingIndex = idx;
                         updateGlobalTrackInfo(idx);
                         syncPageWithTrack(idx);
+                        setActiveTrackHighlight(idx);
                     }
                 } else {
                     audioElement.pause();
@@ -897,6 +917,7 @@
                     currentPlayingIndex = idx;
                     updateGlobalTrackInfo(idx);
                     syncPageWithTrack(idx);
+                    setActiveTrackHighlight(idx);
                 }
                 updateGlobalPlayPauseIcon();
                 saveGlobalState();
@@ -968,6 +989,7 @@
                     currentPlayingIndex = idx;
                     updateGlobalTrackInfo(idx);
                     syncPageWithTrack(idx);
+                    setActiveTrackHighlight(idx);
                 }
             } else {
                 audio.pause();
@@ -1031,7 +1053,7 @@
                 const div = allSongItems[currentPlayingIndex];
                 const title = div.querySelector('.song-title')?.innerText || 'Трек';
                 const artist = div.querySelector('.song-artist')?.innerText || 'Artist';
-                navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'WLS' });
+                navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'Whole Lotta Swag' });
             }
             navigator.mediaSession.setActionHandler('play', () => toggleGlobalPlayPause());
             navigator.mediaSession.setActionHandler('pause', () => toggleGlobalPlayPause());
